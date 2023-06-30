@@ -1,5 +1,6 @@
 import core from '@actions/core';
 import github from '@actions/github';
+import artifact from '@actions/artifact';
 
 import { Configuration, OpenAIApi } from 'openai';
 
@@ -17,10 +18,11 @@ async function callGPT(token: string) {
 
   const client = new OpenAIApi(configuration);
 
-  const completion = await client.createChatCompletion();
+  // const completion = await client.createChatCompletion();
 }
 
 async function saveKnowledge(knowledge: Knowledge) {
+  octokit.rest.repos.createOrUpdateFileContents()
 
 }
 
@@ -31,6 +33,7 @@ async function run(): Promise<void> {
 
     const octokit = github.getOctokit(accessToken);
     const { number, owner, repo } = github.context.issue;
+
 
     const comments = await octokit.request("GET /repos/{owner}/{repo}/issues/comments", {
       owner,

@@ -1,14 +1,25 @@
-import core from '@actions/core';
-import github from '@actions/github';
-import artifact from '@actions/artifact';
+import { getInput, setFailed } from '@actions/core';
+import { getOctokit, context } from '@actions/github';
 
 import { Configuration, OpenAIApi } from 'openai';
+
+const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
 
 interface Knowledge {
   id: number;
   title: string;
   summary: string;
   solution: string;
+}
+
+interface RepositoryMetadata {
+  owner: string;
+  repo: string;
+}
+
+interface RepositoryFile {
+  content: string;
+  sha: string;
 }
 
 async function callGPT(token: string) {
@@ -21,19 +32,81 @@ async function callGPT(token: string) {
   // const completion = await client.createChatCompletion();
 }
 
-async function saveKnowledge(knowledge: Knowledge) {
-  octokit.rest.repos.createOrUpdateFileContents()
+async function getExistingKnowledge(
+  token: string,
+  metadata: RepositoryMetadata,
+): Promise<RepositoryFile> {
+  const octokit = getOctokit(token);
 
+  try {
+    const existingContent = await octokit.rest.repos.getContent({
+      owner: metadata.owner,
+      repo: metadata.repo,
+      path: KNOWLEDGE_PATH,
+    }) as {
+      data: {
+        content: string,
+        sha: string,
+      },
+      status: 200 | 404,
+    };
+
+    if (existingContent.status === 404) {
+      return {
+        content: '',
+        sha: '',
+      };
+    }
+
+    const text = Buffer.from(existingContent.data.content, 'base64').toString('utf8')
+
+    return {
+      content: text,
+      sha: existingContent.data.sha,
+    };
+  } catch (err) {
+    return {
+      content: '',
+      sha: '',
+    };
+  }
+}
+
+
+async function saveKnowledge(
+  token: string,
+  metadata: RepositoryMetadata,
+  knowledge: Knowledge,
+) {
+  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary}`;
+  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution}"}`
+
+  const octokit = getOctokit(token);
+
+  const { content: prevContent, sha } = await getExistingKnowledge(token, metadata);
+
+  const params = {
+    owner: metadata.owner,
+    repo: metadata.repo,
+    path: KNOWLEDGE_PATH,
+    content: `${prevContent}\n${knowledgeStr}`,
+    message: 'chore: update knowledge',
+  };
+
+  if (sha) {
+    params['sha'] = sha;
+  }
+
+  await octokit.rest.repos.createOrUpdateFileContents(params);
 }
 
 async function run(): Promise<void> {
   try {
-    const accessToken = core.getInput('access_token');
-    const openAIKey = core.getInput('openai_key');
+    const token = getInput('access_token');
+    const key = getInput('openai_key');
 
-    const octokit = github.getOctokit(accessToken);
-    const { number, owner, repo } = github.context.issue;
-
+    const octokit = getOctokit(token);
+    const { number, owner, repo } = context.issue;
 
     const comments = await octokit.request("GET /repos/{owner}/{repo}/issues/comments", {
       owner,
@@ -55,20 +128,31 @@ async function run(): Promise<void> {
 
     const anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.exec(anchor);
 
+    if (!anchorSummary) {
+
+    }
+
     if (anchorSummary) {
       const [_, problem, solution] = anchorSummary;
 
-      await saveKnowledge({
-        id: number,
-        title: issue.data.title,
-        summary: problem,
-        solution: solution,
-      });
+      await saveKnowledge(
+        token,
+        {
+          owner,
+          repo,
+        },
+        {
+          id: number,
+          title: issue.data.title,
+          summary: problem,
+          solution: solution,
+        },
+      );
     } else {
       // Call GPT
     }
   } catch (err) {
-    core.setFailed(err);
+      setFailed(err);
   }
 }
 

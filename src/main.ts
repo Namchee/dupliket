@@ -1,8 +1,6 @@
 import { getInput, setFailed } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
-import { Configuration, OpenAIApi } from 'openai';
-
 const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
 
 interface Knowledge {
@@ -20,16 +18,6 @@ interface RepositoryMetadata {
 interface RepositoryFile {
   content: string;
   sha: string;
-}
-
-async function callGPT(token: string) {
-  const configuration = new Configuration({
-    apiKey: token,
-  });
-
-  const client = new OpenAIApi(configuration);
-
-  // const completion = await client.createChatCompletion();
 }
 
 async function getExistingKnowledge(

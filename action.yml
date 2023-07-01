@@ -1,13 +1,10 @@
 name: 'summarizr'
-description: 'An experimental issue summarizer for later projects'
+description: 'An experimental knowledge gathering bot for later projects'
 author: 'Cristopher'
 inputs:
-  access_token: # change this
+  access_token:
     required: true
     description: 'GitHub Personal Access Token'
-  openai_key: # change this
-    required: true
-    description: 'OpenAI API Key'
 runs:
   using: 'node20'
   main: 'dist/index.js'

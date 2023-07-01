@@ -101,12 +101,18 @@ async function run(): Promise<void> {
       repo,
     });
     
-    const texts = (comments.data).map(comment => comment.body) as string[];
-    const anchor = texts.find(text => text === '/summarizr');
+    const anchor = comments.data.find(text => text.body && text.body.startsWith('/summarizr'));
 
     if (!anchor) {
       return;
     }
+
+    const reaction = await octokit.rest.reactions.createForIssueComment({
+      owner,
+      repo,
+      comment_id: anchor.id,
+      content: 'eyes',
+    })
 
     const issue = await octokit.rest.issues.get({
       issue_number: number,
@@ -114,31 +120,58 @@ async function run(): Promise<void> {
       repo,
     });
 
-    const anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.exec(anchor);
+    const anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.
+      exec(anchor.body as string);
 
     if (!anchorSummary) {
-
-    }
-
-    if (anchorSummary) {
-      const [_, problem, solution] = anchorSummary;
-
-      await saveKnowledge(
-        token,
-        {
+      await Promise.all([
+        octokit.rest.reactions.createForIssueComment({
           owner,
           repo,
-        },
-        {
-          id: number,
-          title: issue.data.title,
-          summary: problem,
-          solution: solution,
-        },
-      );
-    } else {
-      // Call GPT
+          comment_id: anchor.id,
+          content: '-1',
+        }),
+        octokit.rest.reactions.deleteForIssueComment({
+          owner,
+          repo,
+          comment_id: anchor.id,
+          reaction_id: reaction.data.id,
+        }),
+      ]);
+
+      return;
     }
+
+    const [_, problem, solution] = anchorSummary;
+
+    await saveKnowledge(
+      token,
+      {
+        owner,
+        repo,
+      },
+      {
+        id: number,
+        title: issue.data.title,
+        summary: problem,
+        solution: solution,
+      },
+    );
+
+    await Promise.all([
+      octokit.rest.reactions.createForIssueComment({
+        owner,
+        repo,
+        comment_id: anchor.id,
+        content: '+1',
+      }),
+      octokit.rest.reactions.deleteForIssueComment({
+        owner,
+        repo,
+        comment_id: anchor.id,
+        reaction_id: reaction.data.id,
+      }),
+    ]);
   } catch (err) {
       setFailed(err);
   }

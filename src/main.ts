@@ -1,6 +1,8 @@
 import { getInput, setFailed } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
+import { Configuration, OpenAIApi } from 'openai';
+
 const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
 
 interface Knowledge {
@@ -18,6 +20,20 @@ interface RepositoryMetadata {
 interface RepositoryFile {
   content: string;
   sha: string;
+}
+
+async function summarizeIssue(
+  apiKey: string
+) {
+  const configuration = new Configuration({
+    apiKey: apiKey,
+  });
+  const openai = new OpenAIApi(configuration);
+
+  const completion = await openai.createCompletion({
+    model: 'gpt-3.5-turbo',
+    prompt: `You are a `
+  });
 }
 
 async function getExistingKnowledge(
@@ -124,6 +140,9 @@ async function run(): Promise<void> {
       exec(anchor.body as string);
 
     if (!anchorSummary) {
+      const summary = summarizeIssue(key);
+
+
       await Promise.all([
         octokit.rest.reactions.createForIssueComment({
           owner,

@@ -5,6 +5,9 @@ inputs:
   access_token:
     required: true
     description: 'GitHub Personal Access Token'
+  openai_key:
+    required: true
+    description: 'OpenAI API Key'
 runs:
   using: 'node20'
   main: 'dist/index.js'

@@ -5,6 +5,8 @@ import { Configuration, OpenAIApi } from 'openai';
 
 const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
 
+const prompt = `Summarize the problem and solution in the following conversation.`
+
 interface Knowledge {
   id: number;
   title: string;
@@ -32,7 +34,7 @@ async function summarizeIssue(
 
   const completion = await openai.createCompletion({
     model: 'gpt-3.5-turbo',
-    prompt: `You are a `
+    prompt: prompt,
   });
 }
 
@@ -94,7 +96,7 @@ async function saveKnowledge(
     repo: metadata.repo,
     path: KNOWLEDGE_PATH,
     content: `${prevContent}\n${knowledgeStr}`,
-    message: 'chore: update knowledge',
+    message: 'chore(summarizr): update knowledge',
   };
 
   if (sha) {

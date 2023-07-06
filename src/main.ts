@@ -1,11 +1,13 @@
 import { getInput, setFailed } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
+import dedent from 'dedent';
+
 import { Configuration, OpenAIApi } from 'openai';
 
 const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
 
-const prompt = `Summarize the problem and solution in the following conversation.`
+const prompt = `Summarize the problem and solution from the following conversation. Interaction with conversation participants will be separated by '###'`
 
 interface Knowledge {
   id: number;
@@ -14,55 +16,61 @@ interface Knowledge {
   solution: string;
 }
 
-interface RepositoryMetadata {
-  owner: string;
-  repo: string;
-}
-
 interface RepositoryFile {
   content: string;
   sha: string;
 }
 
-async function summarizeIssue(
-  apiKey: string
+function formatIssueToPrompt(
+  issue: { title: string, body?: string | null },
+  comments: { user: { name: string }, body: string }[],
 ) {
+  const commentStr = comments.map(comment => `@${comment.user.name}: ${comment.body}`);
+  return dedent`
+  Title: ${issue.title}
+
+  ###
+  ${commentStr.join("\n###\n")}
+  ###
+  `;
+}
+
+async function summarizeIssue(
+  issue: { title: string, body?: string | null },
+  comments: { body: string }[],
+) {
+  const key = getInput('openai_key');
+
   const configuration = new Configuration({
-    apiKey: apiKey,
+    apiKey: key,
   });
   const openai = new OpenAIApi(configuration);
 
   const completion = await openai.createCompletion({
     model: 'gpt-3.5-turbo',
-    prompt: prompt,
+    prompt: `${prompt}\n\n${formatIssueToPrompt()}`,
+    temperature: 0.35,
+    max_tokens: 150,
   });
 }
 
-async function getExistingKnowledge(
-  token: string,
-  metadata: RepositoryMetadata,
-): Promise<RepositoryFile> {
+async function getExistingKnowledge(): Promise<RepositoryFile> {
+  const token = getInput('access_token');
   const octokit = getOctokit(token);
+
+  const { owner, repo } = context.issue;
 
   try {
     const existingContent = await octokit.rest.repos.getContent({
-      owner: metadata.owner,
-      repo: metadata.repo,
+      owner,
+      repo,
       path: KNOWLEDGE_PATH,
     }) as {
       data: {
-        content: string,
         sha: string,
+        content: string,
       },
-      status: 200 | 404,
     };
-
-    if (existingContent.status === 404) {
-      return {
-        content: '',
-        sha: '',
-      };
-    }
 
     const text = Buffer.from(existingContent.data.content, 'base64').toString('utf8')
 
@@ -79,20 +87,21 @@ async function getExistingKnowledge(
 }
 
 async function saveKnowledge(
-  token: string,
-  metadata: RepositoryMetadata,
   knowledge: Knowledge,
 ) {
+  const token = getInput('access_token');
+  const { owner, repo } = context.issue;
+
   const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary}`;
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution}"}`
 
   const octokit = getOctokit(token);
 
-  const { content: prevContent, sha } = await getExistingKnowledge(token, metadata);
+  const { content: prevContent, sha } = await getExistingKnowledge();
 
   const params = {
-    owner: metadata.owner,
-    repo: metadata.repo,
+    owner,
+    repo,
     path: KNOWLEDGE_PATH,
     content: `${prevContent}\n${knowledgeStr}`,
     message: 'chore(summarizr): update knowledge',
@@ -125,6 +134,21 @@ async function hasWriteAccess(): Promise<boolean> {
   }
 }
 
+async function getIssue(): Promise<{ title: string, body?: string | null }> {
+  const token = getInput('access_token');
+  const octokit = getOctokit(token);
+
+  const { owner, repo, number } = context.issue;
+
+  const { data } = await octokit.rest.issues.get({
+    owner,
+    repo,
+    issue_number: number,
+  });
+
+  return data;
+}
+
 async function run(): Promise<void> {
   try {
     const token = getInput('access_token');
@@ -138,7 +162,7 @@ async function run(): Promise<void> {
       repo,
       issue_number: number,
     });
-    
+        
     const anchor = comments.data.find(text => text.body && text.body.startsWith('/summarizr'));
 
     if (!anchor || !hasWriteAccess()) {
@@ -185,11 +209,6 @@ async function run(): Promise<void> {
     const [_, problem, solution] = anchorSummary;
 
     await saveKnowledge(
-      token,
-      {
-        owner,
-        repo,
-      },
       {
         id: number,
         title: issue.data.title,

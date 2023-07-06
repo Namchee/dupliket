@@ -78,7 +78,6 @@ async function getExistingKnowledge(
   }
 }
 
-
 async function saveKnowledge(
   token: string,
   metadata: RepositoryMetadata,
@@ -106,6 +105,26 @@ async function saveKnowledge(
   await octokit.rest.repos.createOrUpdateFileContents(params);
 }
 
+async function hasWriteAccess(): Promise<boolean> {
+  const token = getInput('access_token');
+  const octokit = getOctokit(token);
+
+  const { owner, repo } = context.issue;
+  const user = context.actor;
+
+  try {
+    await octokit.rest.repos.checkCollaborator({
+      owner,
+      repo,
+      username: user,
+    });
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 async function run(): Promise<void> {
   try {
     const token = getInput('access_token');
@@ -114,14 +133,15 @@ async function run(): Promise<void> {
     const octokit = getOctokit(token);
     const { number, owner, repo } = context.issue;
 
-    const comments = await octokit.request("GET /repos/{owner}/{repo}/issues/comments", {
+    const comments = await octokit.rest.issues.listComments({
       owner,
       repo,
+      issue_number: number,
     });
     
     const anchor = comments.data.find(text => text.body && text.body.startsWith('/summarizr'));
 
-    if (!anchor) {
+    if (!anchor || !hasWriteAccess()) {
       return;
     }
 
@@ -143,7 +163,6 @@ async function run(): Promise<void> {
 
     if (!anchorSummary) {
       const summary = summarizeIssue(key);
-
 
       await Promise.all([
         octokit.rest.reactions.createForIssueComment({

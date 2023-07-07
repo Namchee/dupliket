@@ -7,7 +7,7 @@ import { Configuration, OpenAIApi } from 'openai';
 
 const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
 
-const prompt = `Summarize the problem and solution from the following conversation. Interaction with conversation participants will be separated by '###'`
+const prompt = `Summarize the problem and solution from the following conversation. Interaction with conversation participants will be separated by '###'.`
 
 interface Knowledge {
   id: number;
@@ -21,9 +21,22 @@ interface RepositoryFile {
   sha: string;
 }
 
+interface GithubIssue {
+  title: string;
+  body: string;
+}
+
+interface GithubComment {
+  id: number;
+  user: {
+    name: string;
+  };
+  body: string;
+}
+
 function formatIssueToPrompt(
-  issue: { title: string, body?: string | null },
-  comments: { user: { name: string }, body: string }[],
+  issue: GithubIssue,
+  comments: GithubComment[],
 ) {
   const commentStr = comments.map(comment => `@${comment.user.name}: ${comment.body}`);
   return dedent`
@@ -32,12 +45,15 @@ function formatIssueToPrompt(
   ###
   ${commentStr.join("\n###\n")}
   ###
+
+  Problem:
+  Solution:
   `;
 }
 
 async function summarizeIssue(
-  issue: { title: string, body?: string | null },
-  comments: { body: string }[],
+  issue: GithubIssue,
+  comments: GithubComment[],
 ) {
   const key = getInput('openai_key');
 
@@ -48,7 +64,7 @@ async function summarizeIssue(
 
   const completion = await openai.createCompletion({
     model: 'gpt-3.5-turbo',
-    prompt: `${prompt}\n\n${formatIssueToPrompt()}`,
+    prompt: `${prompt}\n\n${formatIssueToPrompt(issue, comments)}`,
     temperature: 0.35,
     max_tokens: 150,
   });
@@ -134,7 +150,7 @@ async function hasWriteAccess(): Promise<boolean> {
   }
 }
 
-async function getIssue(): Promise<{ title: string, body?: string | null }> {
+async function getIssue(): Promise<GithubIssue> {
   const token = getInput('access_token');
   const octokit = getOctokit(token);
 
@@ -146,24 +162,34 @@ async function getIssue(): Promise<{ title: string, body?: string | null }> {
     issue_number: number,
   });
 
-  return data;
+  return data as unknown as GithubIssue;
 }
+
+async function getIssuesComments(): Promise<GithubComment[]> {
+  const token = getInput('access_token');
+  const octokit = getOctokit(token);
+
+  const { owner, repo, number } = context.issue;
+
+  const { data } = await octokit.rest.issues.listComments({
+    owner,
+    repo,
+    issue_number: number,
+  })
+
+  return data as unknown as GithubComment[];
+}
+
 
 async function run(): Promise<void> {
   try {
     const token = getInput('access_token');
-    const key = getInput('openai_key');
-
     const octokit = getOctokit(token);
-    const { number, owner, repo } = context.issue;
 
-    const comments = await octokit.rest.issues.listComments({
-      owner,
-      repo,
-      issue_number: number,
-    });
-        
-    const anchor = comments.data.find(text => text.body && text.body.startsWith('/summarizr'));
+    const { owner, repo, number } = context.issue;
+
+    const comments = await getIssuesComments();
+    const anchor = comments.find(text => text.body && text.body.startsWith('/summarizr'));
 
     if (!anchor || !hasWriteAccess()) {
       return;
@@ -176,17 +202,13 @@ async function run(): Promise<void> {
       content: 'eyes',
     })
 
-    const issue = await octokit.rest.issues.get({
-      issue_number: number,
-      owner,
-      repo,
-    });
+    const issue = await getIssue();
 
     const anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.
       exec(anchor.body as string);
 
     if (!anchorSummary) {
-      const summary = summarizeIssue(key);
+      const summary = summarizeIssue(issue, comments);
 
       await Promise.all([
         octokit.rest.reactions.createForIssueComment({
@@ -211,7 +233,7 @@ async function run(): Promise<void> {
     await saveKnowledge(
       {
         id: number,
-        title: issue.data.title,
+        title: issue.title,
         summary: problem,
         solution: solution,
       },

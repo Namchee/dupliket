@@ -68,6 +68,8 @@ async function summarizeIssue(
     temperature: 0.35,
     max_tokens: 150,
   });
+
+  return /Problem: (.+)\nSolution(.+)/.exec(completion.data.object);
 }
 
 async function getExistingKnowledge(): Promise<RepositoryFile> {
@@ -130,18 +132,17 @@ async function saveKnowledge(
   await octokit.rest.repos.createOrUpdateFileContents(params);
 }
 
-async function hasWriteAccess(): Promise<boolean> {
+async function hasWriteAccess(username: string): Promise<boolean> {
   const token = getInput('access_token');
   const octokit = getOctokit(token);
 
   const { owner, repo } = context.issue;
-  const user = context.actor;
 
   try {
     await octokit.rest.repos.checkCollaborator({
       owner,
       repo,
-      username: user,
+      username,
     });
 
     return true;
@@ -180,6 +181,20 @@ async function getIssuesComments(): Promise<GithubComment[]> {
   return data as unknown as GithubComment[];
 }
 
+async function createReaction(reaction: string, commentID: number): Promise<void> {
+  const token = getInput('access_token');
+  const octokit = getOctokit(token);
+
+  const { owner, repo } = context.issue;
+
+  await octokit.rest.reactions.createForIssueComment({
+    owner,
+    repo,
+    comment_id: commentID,
+    content: reaction ,
+  })
+}
+
 
 async function run(): Promise<void> {
   try {
@@ -191,41 +206,18 @@ async function run(): Promise<void> {
     const comments = await getIssuesComments();
     const anchor = comments.find(text => text.body && text.body.startsWith('/summarizr'));
 
-    if (!anchor || !hasWriteAccess()) {
+    if (!anchor || !hasWriteAccess(anchor.user.name)) {
       return;
     }
 
-    const reaction = await octokit.rest.reactions.createForIssueComment({
-      owner,
-      repo,
-      comment_id: anchor.id,
-      content: 'eyes',
-    })
-
+    const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();
 
-    const anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.
+    let anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.
       exec(anchor.body as string);
 
     if (!anchorSummary) {
-      const summary = summarizeIssue(issue, comments);
-
-      await Promise.all([
-        octokit.rest.reactions.createForIssueComment({
-          owner,
-          repo,
-          comment_id: anchor.id,
-          content: '-1',
-        }),
-        octokit.rest.reactions.deleteForIssueComment({
-          owner,
-          repo,
-          comment_id: anchor.id,
-          reaction_id: reaction.data.id,
-        }),
-      ]);
-
-      return;
+      anchorSummary = await summarizeIssue(issue, comments) as RegExpExecArray;
     }
 
     const [_, problem, solution] = anchorSummary;

@@ -1,0 +1,15 @@
+name: Add new knowledge for auto-triaging
+
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  summarizr:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Summarize issue and add new knowledge
+        uses: ./
+        with:
+          access_token: ${{ secrets.GITHUB_TOKEN }}
+          openai_key: ${{ secrets.OPENAI_KEY }}

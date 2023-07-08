@@ -63,6 +63,8 @@ async function summarizeIssue(
   comments: GithubComment[],
 ) {
   const key = getInput('openai_key');
+  const temperature = Number(getInput('temperature'));
+  const tokens = Number(getInput('max_tokens'));
 
   const configuration = new Configuration({
     apiKey: key,
@@ -72,8 +74,8 @@ async function summarizeIssue(
   const completion = await openai.createCompletion({
     model: 'gpt-3.5-turbo',
     prompt: `${prompt}\n\n${formatIssueToPrompt(issue, comments)}`,
-    temperature: 0.35,
-    max_tokens: 150,
+    temperature,
+    max_tokens: tokens,
   });
 
   return /Problem: (.+)\nSolution(.+)/.exec(completion.data.object);

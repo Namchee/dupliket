@@ -8,6 +8,14 @@ inputs:
   openai_key:
     required: true
     description: 'OpenAI API Key'
+  temperature:
+    required: false
+    description: GPT's temperature
+    default: 0.5
+  max_tokens:
+    required: false
+    description: Maximum token length for issue summarization
+    default: 200
 runs:
   using: 'node20'
   main: 'dist/index.js'

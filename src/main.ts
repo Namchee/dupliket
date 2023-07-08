@@ -9,6 +9,8 @@ const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
 
 const prompt = `Summarize the problem and solution from the following conversation. Interaction with conversation participants will be separated by '###'.`
 
+type Reaction = 'eyes' | '+1' | 'confused' | '-1';
+
 interface Knowledge {
   id: number;
   title: string;
@@ -32,6 +34,11 @@ interface GithubComment {
     name: string;
   };
   body: string;
+}
+
+interface GithubReaction {
+  id: number;
+  content: Reaction;
 }
 
 function formatIssueToPrompt(
@@ -181,27 +188,39 @@ async function getIssuesComments(): Promise<GithubComment[]> {
   return data as unknown as GithubComment[];
 }
 
-async function createReaction(reaction: string, commentID: number): Promise<void> {
+async function createReaction(reaction: Reaction, commentID: number): Promise<GithubReaction> {
   const token = getInput('access_token');
   const octokit = getOctokit(token);
 
   const { owner, repo } = context.issue;
 
-  await octokit.rest.reactions.createForIssueComment({
+  const { data } = await octokit.rest.reactions.createForIssueComment({
     owner,
     repo,
     comment_id: commentID,
-    content: reaction ,
+    content: reaction,
+  });
+
+  return data as unknown as GithubReaction;
+}
+
+async function deleteReaction(commentID: number, reactionID: number): Promise<void> {
+  const token = getInput('access_token');
+  const octokit = getOctokit(token);
+
+  const { owner, repo } = context.issue;
+
+  await octokit.rest.reactions.deleteForIssueComment({
+    owner,
+    repo,
+    comment_id: commentID,
+    reaction_id: reactionID,
   })
 }
 
-
 async function run(): Promise<void> {
   try {
-    const token = getInput('access_token');
-    const octokit = getOctokit(token);
-
-    const { owner, repo, number } = context.issue;
+    const { number } = context.issue;
 
     const comments = await getIssuesComments();
     const anchor = comments.find(text => text.body && text.body.startsWith('/summarizr'));
@@ -232,21 +251,11 @@ async function run(): Promise<void> {
     );
 
     await Promise.all([
-      octokit.rest.reactions.createForIssueComment({
-        owner,
-        repo,
-        comment_id: anchor.id,
-        content: '+1',
-      }),
-      octokit.rest.reactions.deleteForIssueComment({
-        owner,
-        repo,
-        comment_id: anchor.id,
-        reaction_id: reaction.data.id,
-      }),
+      createReaction('+1', anchor.id),
+      deleteReaction(anchor.id, reaction.id),
     ]);
   } catch (err) {
-      setFailed(err);
+    setFailed(err);
   }
 }
 

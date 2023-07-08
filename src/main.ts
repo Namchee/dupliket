@@ -113,7 +113,7 @@ async function getExistingKnowledge(): Promise<RepositoryFile> {
 
 async function saveKnowledge(
   knowledge: Knowledge,
-) {
+): Promise<void> {
   const token = getInput('access_token');
   const { owner, repo } = context.issue;
 
@@ -124,19 +124,14 @@ async function saveKnowledge(
 
   const { content: prevContent, sha } = await getExistingKnowledge();
 
-  const params = {
+  await octokit.rest.repos.createOrUpdateFileContents({
     owner,
     repo,
     path: KNOWLEDGE_PATH,
     content: `${prevContent}\n${knowledgeStr}`,
     message: 'chore(summarizr): update knowledge',
-  };
-
-  if (sha) {
-    params['sha'] = sha;
-  }
-
-  await octokit.rest.repos.createOrUpdateFileContents(params);
+    sha: '',
+  });
 }
 
 async function hasWriteAccess(username: string): Promise<boolean> {
@@ -255,7 +250,8 @@ async function run(): Promise<void> {
       deleteReaction(anchor.id, reaction.id),
     ]);
   } catch (err) {
-    setFailed(err);
+    const error = err as Error;
+    setFailed(error.message);
   }
 }
 

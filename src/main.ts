@@ -5,8 +5,6 @@ import dedent from 'dedent';
 
 import { Configuration, OpenAIApi } from 'openai';
 
-const KNOWLEDGE_PATH = '.github/issue_data.jsonl';
-
 const prompt = `Summarize the problem and solution from the following conversation. Interaction with conversation participants will be separated by '###'.`
 
 type Reaction = 'eyes' | '+1' | 'confused' | '-1';
@@ -63,6 +61,7 @@ async function summarizeIssue(
   comments: GithubComment[],
 ) {
   const key = getInput('openai_key');
+  const model = getInput('model');
   const temperature = Number(getInput('temperature'));
   const tokens = Number(getInput('max_tokens'));
 
@@ -72,7 +71,7 @@ async function summarizeIssue(
   const openai = new OpenAIApi(configuration);
 
   const completion = await openai.createCompletion({
-    model: 'gpt-3.5-turbo',
+    model: model,
     prompt: `${prompt}\n\n${formatIssueToPrompt(issue, comments)}`,
     temperature,
     max_tokens: tokens,
@@ -81,59 +80,25 @@ async function summarizeIssue(
   return /Problem: (.+)\nSolution(.+)/.exec(completion.data.object);
 }
 
-async function getExistingKnowledge(): Promise<RepositoryFile> {
-  const token = getInput('access_token');
-  const octokit = getOctokit(token);
-
-  const { owner, repo } = context.issue;
-
-  try {
-    const existingContent = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: KNOWLEDGE_PATH,
-    }) as {
-      data: {
-        sha: string,
-        content: string,
-      },
-    };
-
-    const text = Buffer.from(existingContent.data.content, 'base64').toString('utf8')
-
-    return {
-      content: text,
-      sha: existingContent.data.sha,
-    };
-  } catch (err) {
-    return {
-      content: '',
-      sha: '',
-    };
-  }
-}
-
 async function saveKnowledge(
   knowledge: Knowledge,
 ): Promise<void> {
-  const token = getInput('access_token');
+  const model = getInput('model');
   const { owner, repo } = context.issue;
 
   const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary}`;
-  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution}"}`
+  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution}"}`;
 
-  const octokit = getOctokit(token);
+  const file = new File([knowledgeStr], `knowledge-${owner}/${repo}-${knowledge.id}`);
 
-  const { content: prevContent, sha } = await getExistingKnowledge();
-
-  await octokit.rest.repos.createOrUpdateFileContents({
-    owner,
-    repo,
-    path: KNOWLEDGE_PATH,
-    content: `${prevContent}\n${knowledgeStr}`,
-    message: 'chore(summarizr): update knowledge',
-    sha: '',
+  const key = getInput('openai_key');
+  const configuration = new Configuration({
+    apiKey: key,
   });
+  const openai = new OpenAIApi(configuration);
+
+  const trainingFile = await openai.createFile(file, 'fine-tune');
+  await openai.createFineTune({ training_file: trainingFile.data.id, model });
 }
 
 async function hasWriteAccess(username: string): Promise<boolean> {

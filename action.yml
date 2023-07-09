@@ -1,13 +1,13 @@
 name: 'summarizr'
 description: 'An experimental knowledge gathering bot for later projects'
-author: 'Cristopher'
+author: Cristopher Namchee
 inputs:
   access_token:
     required: true
-    description: 'GitHub Personal Access Token'
+    description: GitHub Personal Access Token
   openai_key:
     required: true
-    description: 'OpenAI API Key'
+    description: OpenAI API Key
   temperature:
     required: false
     description: GPT's temperature
@@ -16,6 +16,10 @@ inputs:
     required: false
     description: Maximum token length for issue summarization
     default: 200
+  model:
+    required: false
+    description: AI model to be used when interacting with OpenAI. Only allows fine-tunable models
+    default: ada
 runs:
   using: 'node20'
   main: 'dist/index.js'

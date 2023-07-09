@@ -1,11 +1,10 @@
 # summarizr
-An experimental GitHub action that summarize the content of an issue
 
-## Besok
+An experimental GitHub action that summarize the content of an issue using OpenAI text completion models.
 
-- [ ] Bikin function buat nulis artefak
-- [ ] Research Typia
+## Inputs
 
-## Lusa
-
-- [ ] Bikin chat completion
+- `access_token`*
+- `openai_key`*
+- `temperature`
+- `max_tokens`

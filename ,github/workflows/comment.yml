@@ -5,7 +5,7 @@ on:
     types: [created]
 
 jobs:
-  summarizr:
+  summarize:
     runs-on: ubuntu-latest
     steps:
       - name: Summarize issue and add new knowledge

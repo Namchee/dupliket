@@ -98,7 +98,9 @@ async function saveKnowledge(
   const openai = new OpenAIApi(configuration);
 
   const trainingFile = await openai.createFile(file, 'fine-tune');
-  await openai.createFineTune({ training_file: trainingFile.data.id, model });
+  const fineTuneResult = await openai.createFineTune({ training_file: trainingFile.data.id, model });
+
+  console.log(fineTuneResult.data);
 }
 
 async function hasWriteAccess(username: string): Promise<boolean> {
@@ -187,6 +189,8 @@ async function run(): Promise<void> {
     const comments = await getIssuesComments();
     const anchor = comments.find(text => text.body && text.body.startsWith('/summarizr'));
 
+    console.log(`Anchor: ${anchor}`);
+
     if (!anchor || !hasWriteAccess(anchor.user.name)) {
       return;
     }
@@ -196,6 +200,8 @@ async function run(): Promise<void> {
 
     let anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.
       exec(anchor.body as string);
+
+    console.log(`Summary: ${anchorSummary}`);
 
     if (!anchorSummary) {
       anchorSummary = await summarizeIssue(issue, comments) as RegExpExecArray;
@@ -211,6 +217,8 @@ async function run(): Promise<void> {
         solution: solution,
       },
     );
+
+    console.log('Knowledge saved');
 
     await Promise.all([
       createReaction('+1', anchor.id),

@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Checkout to repository
         uses: actions/checkout@v3
-      - run: "echo ${{ github.workspace }}"
+      - run: "ls -la"
       - name: Summarize issue and add new knowledge
         uses: ./
         with:

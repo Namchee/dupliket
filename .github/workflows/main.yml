@@ -1,0 +1,11 @@
+on:
+  issue_comment:
+    types: [created]
+
+jobs:
+  sample:
+    name: deploy to staging
+    runs-on: ubuntu-18.04
+    steps:
+      - name: Echo
+        run: echo "Hello World!"

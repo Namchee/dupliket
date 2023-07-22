@@ -81,8 +81,8 @@ async function saveKnowledge(
   const model = getInput('model');
   const { owner, repo } = context.issue;
 
-  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary}`;
-  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution}"}`;
+  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary.trim()}`;
+  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.trim()}"}`;
 
   const file = new File([knowledgeStr], `knowledge-${owner}/${repo}-${knowledge.id}`);
 
@@ -193,7 +193,7 @@ async function run(): Promise<void> {
     const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();
 
-    let anchorSummary = /[pP]roblems?:\n\n?([\s\S]+?)\n\n[sS]olutions?:\n\n?([\s\S]+)/ig.
+    let anchorSummary = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig.
       exec(anchor.body as string);
 
     console.log(`Summary: ${anchorSummary}`);

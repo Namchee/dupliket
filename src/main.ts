@@ -184,11 +184,11 @@ async function run(): Promise<void> {
     const comments = await getIssuesComments();
     const anchor = comments.find(text => text.body && text.body.startsWith('/summarize'));
 
-    console.log(`Anchor: ${anchor}`);
-
     if (!anchor || !hasWriteAccess(anchor.user.name)) {
       return;
     }
+
+    console.log(`Anchor: ${anchor.body}`);
 
     const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();

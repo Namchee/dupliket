@@ -2,19 +2,18 @@
   "name": "summarizr",
   "version": "1.0.0",
   "description": "",
-  "main": "lib/main.js",
+  "main": "dist/index.js",
   "scripts": {
-    "build": "tsc",
-    "package": "ncc build --source-map --license licenses.txt",
-    "release": "pnpm run build && pnpm run package"
+    "build": "rm -rf dist && esbuild src/main.ts --outfile=dist/index.js --bundle --platform=node --target=node16 --minify --sourcemap"
   },
   "keywords": [],
   "author": "",
-  "license": "ISC",
+  "license": "The Unlicense",
   "devDependencies": {
     "@types/dedent": "^0.7.0",
     "@types/node": "^20.3.2",
     "@vercel/ncc": "^0.36.1",
+    "esbuild": "^0.18.15",
     "typescript": "^5.1.3"
   },
   "dependencies": {

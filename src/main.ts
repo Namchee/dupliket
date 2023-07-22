@@ -5,7 +5,7 @@ import dedent from 'dedent';
 
 import { Configuration, OpenAIApi } from 'openai';
 
-const prompt = `Summarize the problem and solution from the following conversation. Interaction with conversation participants will be separated by '###'.`
+const prompt = `Summarize the problem and solution from the following conversation in the following format. Interaction with conversation participants will be separated by '###'.`
 
 type Reaction = 'eyes' | '+1' | 'confused' | '-1';
 
@@ -14,11 +14,6 @@ interface Knowledge {
   title: string;
   summary: string;
   solution: string;
-}
-
-interface RepositoryFile {
-  content: string;
-  sha: string;
 }
 
 interface GithubIssue {

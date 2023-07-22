@@ -188,7 +188,7 @@ async function run(): Promise<void> {
       return;
     }
 
-    console.log(`Anchor: ${anchor.body}`);
+    console.log(`Anchor: ${anchor.body.}`);
 
     const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();
@@ -196,13 +196,14 @@ async function run(): Promise<void> {
     let anchorSummary = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig.
       exec(anchor.body as string);
 
-    console.log(`Summary: ${anchorSummary}`);
-
     if (!anchorSummary) {
       anchorSummary = await summarizeIssue(issue, comments) as RegExpExecArray;
     }
 
     const [_, problem, solution] = anchorSummary;
+
+    console.log(problem);
+    console.log(solution);
 
     await saveKnowledge(
       {

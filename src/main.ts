@@ -182,7 +182,7 @@ async function run(): Promise<void> {
     const { number } = context.issue;
 
     const comments = await getIssuesComments();
-    const anchor = comments.find(text => text.body && text.body.startsWith('/summarizr'));
+    const anchor = comments.find(text => text.body && text.body.startsWith('/summarize'));
 
     console.log(`Anchor: ${anchor}`);
 

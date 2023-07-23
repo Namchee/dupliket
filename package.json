@@ -4,7 +4,8 @@
   "description": "",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rm -rf dist && esbuild src/main.ts --outfile=dist/index.js --bundle --platform=node --target=node16 --minify --sourcemap"
+    "build": "rm -rf dist && esbuild src/main.ts --outfile=dist/index.js --bundle --platform=node --target=node16 --minify --sourcemap",
+    "prepare": "husky install"
   },
   "keywords": [],
   "author": "",
@@ -14,6 +15,7 @@
     "@types/node": "^20.3.2",
     "@vercel/ncc": "^0.36.1",
     "esbuild": "^0.18.15",
+    "husky": "^8.0.0",
     "typescript": "^5.1.3"
   },
   "dependencies": {

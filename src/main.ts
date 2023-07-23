@@ -1,9 +1,12 @@
+import { Readable } from 'stream';
+
 import { getInput, setFailed } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
-import dedent from 'dedent';
-
 import { Configuration, OpenAIApi } from 'openai';
+
+import dedent from 'dedent';
+import { ReadStream, createReadStream } from 'fs';
 
 const prompt = `Summarize the problem and solution from the following conversation in the following format. Interaction with conversation participants will be separated by '###'.`
 
@@ -84,7 +87,7 @@ async function saveKnowledge(
   const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary.trim()}`;
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.trim()}"}`;
 
-  const file = new File([knowledgeStr], `knowledge-${owner}/${repo}-${knowledge.id}`);
+  const file = new File([knowledgeStr], `knowledge-id-${knowledge.id}`);
 
   const key = getInput('openai_key');
   const configuration = new Configuration({
@@ -188,8 +191,6 @@ async function run(): Promise<void> {
       return;
     }
 
-    console.log(`Anchor: ${anchor.body.}`);
-
     const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();
 
@@ -201,9 +202,6 @@ async function run(): Promise<void> {
     }
 
     const [_, problem, solution] = anchorSummary;
-
-    console.log(problem);
-    console.log(solution);
 
     await saveKnowledge(
       {

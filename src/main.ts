@@ -6,9 +6,10 @@ import { getOctokit, context } from '@actions/github';
 import { Configuration, OpenAIApi } from 'openai';
 
 import dedent from 'dedent';
-import { ReadStream, createReadStream } from 'fs';
+import { ReadStream, createReadStream, fstat, writeFile, writeFileSync } from 'fs';
 
 const prompt = `Summarize the problem and solution from the following conversation in the following format. Interaction with conversation participants will be separated by '###'.`
+const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;
 
 type Reaction = 'eyes' | '+1' | 'confused' | '-1';
 
@@ -35,6 +36,16 @@ interface GithubComment {
 interface GithubReaction {
   id: number;
   content: Reaction;
+}
+
+async function createStream(content: string): Promise<Readable> {
+  return new Promise((resolve, reject) => {
+    const readable = Readable.from(content, { encoding: 'utf-8' });
+
+    readable.on('end', () => {
+      resolve(readable);
+    });
+  });
 }
 
 function formatIssueToPrompt(
@@ -75,7 +86,7 @@ async function summarizeIssue(
     max_tokens: tokens,
   });
 
-  return /Problem: (.+)\nSolution(.+)/.exec(completion.data.object);
+  return promptPattern.exec(completion.data.object);
 }
 
 async function saveKnowledge(
@@ -87,7 +98,7 @@ async function saveKnowledge(
   const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary.trim()}`;
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.trim()}"}`;
 
-  const file = new File([knowledgeStr], `knowledge-id-${knowledge.id}`);
+  const file = await createStream(knowledgeStr);
 
   const key = getInput('openai_key');
   const configuration = new Configuration({
@@ -95,7 +106,7 @@ async function saveKnowledge(
   });
   const openai = new OpenAIApi(configuration);
 
-  const trainingFile = await openai.createFile(file, 'fine-tune');
+  const trainingFile = await openai.createFile(file as unknown as File, 'fine-tune');
   const fineTuneResult = await openai.createFineTune({ training_file: trainingFile.data.id, model });
 
   console.log(fineTuneResult.data);
@@ -194,8 +205,7 @@ async function run(): Promise<void> {
     const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();
 
-    let anchorSummary = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig.
-      exec(anchor.body as string);
+    let anchorSummary = promptPattern.exec(anchor.body as string);
 
     if (!anchorSummary) {
       anchorSummary = await summarizeIssue(issue, comments) as RegExpExecArray;

@@ -92,8 +92,8 @@ async function summarizeIssue(
 async function saveKnowledge(
   knowledge: Knowledge,
 ): Promise<void> {
+  console.log('Saving Knowledge');
   const model = getInput('model');
-  const { owner, repo } = context.issue;
 
   const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary.trim()}`;
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.trim()}"}`;
@@ -107,6 +107,9 @@ async function saveKnowledge(
   const openai = new OpenAIApi(configuration);
 
   const trainingFile = await openai.createFile(file as unknown as File, 'fine-tune');
+
+  console.log(trainingFile.data.status);
+
   const fineTuneResult = await openai.createFineTune({ training_file: trainingFile.data.id, model });
 
   console.log(fineTuneResult.data);

@@ -202,10 +202,14 @@ async function run(): Promise<void> {
       return;
     }
 
+    console.log(anchor);
+
     const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();
 
     let anchorSummary = promptPattern.exec(anchor.body as string);
+
+    console.log(anchorSummary);
 
     if (!anchorSummary) {
       anchorSummary = await summarizeIssue(issue, comments) as RegExpExecArray;

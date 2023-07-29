@@ -95,16 +95,25 @@ async function saveKnowledge(
   console.log('Saving Knowledge');
   const model = getInput('model');
 
-  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary.trim()}`;
-  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.trim()}"}`;
+  console.log(`model: ${model}`);
+
+  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary.replace(/\s+/g, '')}`;
+  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.replace(/\s+/g, '')}"}`;
+
+  console.log(prompt);
+  console.log(knowledgeStr);
 
   const file = await createStream(knowledgeStr);
+
+  console.log(file !== undefined);
 
   const key = getInput('openai_key');
   const configuration = new Configuration({
     apiKey: key,
   });
   const openai = new OpenAIApi(configuration);
+
+  console.log(openai !== undefined);
 
   const trainingFile = await openai.createFile(file as unknown as File, 'fine-tune');
 
@@ -205,14 +214,10 @@ async function run(): Promise<void> {
       return;
     }
 
-    console.log(anchor);
-
     const reaction = await createReaction('eyes', anchor.id);
     const issue = await getIssue();
 
     let anchorSummary = promptPattern.exec(anchor.body as string);
-
-    console.log(anchorSummary);
 
     if (!anchorSummary) {
       anchorSummary = await summarizeIssue(issue, comments) as RegExpExecArray;

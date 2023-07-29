@@ -42,7 +42,7 @@ async function createStream(content: string): Promise<Readable> {
   return new Promise((resolve, reject) => {
     const readable = Readable.from(content, { encoding: 'utf-8' });
 
-    readable.on('end', () => {
+    readable.on('data', () => {
       resolve(readable);
     });
   });
@@ -97,7 +97,7 @@ async function saveKnowledge(
 
   console.log(`model: ${model}`);
 
-  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}Problem: ${knowledge.summary.replace(/\s+/g, '')}`;
+  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}\nProblem: ${knowledge.summary.replace(/\s+/g, '')}`;
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.replace(/\s+/g, '')}"}`;
 
   console.log(prompt);

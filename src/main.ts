@@ -6,7 +6,6 @@ import { getOctokit, context } from '@actions/github';
 import { Configuration, OpenAIApi } from 'openai';
 
 import dedent from 'dedent';
-import { ReadStream, createReadStream, createWriteStream, fstat, writeFile, writeFileSync } from 'fs';
 
 const prompt = `Summarize the problem and solution from the following conversation in the following format. Interaction with conversation participants will be separated by '###'.`
 const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;
@@ -87,8 +86,7 @@ async function saveKnowledge(
   const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}\nProblem: ${knowledge.summary.replace(/\s+/g, '')}`;
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.replace(/\s+/g, '')}"}`;
 
-  const file = createWriteStream(`./knowledge-${knowledge.id}`);
-  file.end(knowledgeStr);
+  const file = Readable.from(knowledgeStr);
 
   const key = getInput('openai_key');
   const configuration = new Configuration({

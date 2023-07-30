@@ -88,7 +88,7 @@ async function saveKnowledge(
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.replace(/\s+/g, '')}"}`;
 
   const file = createWriteStream(`./knowledge-${knowledge.id}`);
-  file.write(knowledgeStr);
+  file.end(knowledgeStr);
 
   const key = getInput('openai_key');
   const configuration = new Configuration({

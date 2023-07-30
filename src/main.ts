@@ -6,7 +6,7 @@ import { getOctokit, context } from '@actions/github';
 import { Configuration, OpenAIApi } from 'openai';
 
 import dedent from 'dedent';
-import { ReadStream, createReadStream, fstat, writeFile, writeFileSync } from 'fs';
+import { ReadStream, createReadStream, createWriteStream, fstat, writeFile, writeFileSync } from 'fs';
 
 const prompt = `Summarize the problem and solution from the following conversation in the following format. Interaction with conversation participants will be separated by '###'.`
 const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;
@@ -36,16 +36,6 @@ interface GithubComment {
 interface GithubReaction {
   id: number;
   content: Reaction;
-}
-
-async function createStream(content: string): Promise<Readable> {
-  return new Promise((resolve, reject) => {
-    const readable = Readable.from(content, { encoding: 'utf-8' });
-
-    readable.on('data', () => {
-      resolve(readable);
-    });
-  });
 }
 
 function formatIssueToPrompt(
@@ -92,28 +82,19 @@ async function summarizeIssue(
 async function saveKnowledge(
   knowledge: Knowledge,
 ): Promise<void> {
-  console.log('Saving Knowledge');
   const model = getInput('model');
-
-  console.log(`model: ${model}`);
 
   const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}\nProblem: ${knowledge.summary.replace(/\s+/g, '')}`;
   const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.replace(/\s+/g, '')}"}`;
 
-  console.log(prompt);
-  console.log(knowledgeStr);
-
-  const file = await createStream(knowledgeStr);
-
-  console.log(file !== undefined);
+  const file = createWriteStream(`./knowledge-${knowledge.id}`);
+  file.write(knowledgeStr);
 
   const key = getInput('openai_key');
   const configuration = new Configuration({
     apiKey: key,
   });
   const openai = new OpenAIApi(configuration);
-
-  console.log(openai !== undefined);
 
   const trainingFile = await openai.createFile(file as unknown as File, 'fine-tune');
 

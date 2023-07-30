@@ -81,7 +81,6 @@ async function summarizeIssue(
 async function saveKnowledge(
   knowledge: Knowledge,
 ): Promise<void> {
-  try {
     const model = getInput('model');
 
     const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}\nProblem: ${knowledge.summary.replace(/\s+/g, '')}`;
@@ -101,10 +100,6 @@ async function saveKnowledge(
 
     const fineTuneResult = await openai.createFineTune({ training_file: trainingFile.data.id, model });
 
-    console.log(fineTuneResult.data);
-  } catch (err) {
-    console.error(err);
-  }
 }
 
 async function hasWriteAccess(username: string): Promise<boolean> {

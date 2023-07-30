@@ -81,26 +81,30 @@ async function summarizeIssue(
 async function saveKnowledge(
   knowledge: Knowledge,
 ): Promise<void> {
-  const model = getInput('model');
+  try {
+    const model = getInput('model');
 
-  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}\nProblem: ${knowledge.summary.replace(/\s+/g, '')}`;
-  const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.replace(/\s+/g, '')}"}`;
+    const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}\nProblem: ${knowledge.summary.replace(/\s+/g, '')}`;
+    const knowledgeStr = `{"prompt": "${prompt}", "completion": "${knowledge.solution.replace(/\s+/g, '')}"}`;
 
-  const file = Readable.from(knowledgeStr);
+    const file = Readable.from(knowledgeStr);
 
-  const key = getInput('openai_key');
-  const configuration = new Configuration({
-    apiKey: key,
-  });
-  const openai = new OpenAIApi(configuration);
+    const key = getInput('openai_key');
+    const configuration = new Configuration({
+      apiKey: key,
+    });
+    const openai = new OpenAIApi(configuration);
 
-  const trainingFile = await openai.createFile(file as unknown as File, 'fine-tune');
+    const trainingFile = await openai.createFile(file as unknown as File, 'fine-tune');
 
-  console.log(trainingFile.data.status);
+    console.log(trainingFile.data.status);
 
-  const fineTuneResult = await openai.createFineTune({ training_file: trainingFile.data.id, model });
+    const fineTuneResult = await openai.createFineTune({ training_file: trainingFile.data.id, model });
 
-  console.log(fineTuneResult.data);
+    console.log(fineTuneResult.data);
+  } catch (err) {
+    console.error(err);
+  }
 }
 
 async function hasWriteAccess(username: string): Promise<boolean> {

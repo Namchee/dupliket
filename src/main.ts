@@ -131,7 +131,7 @@ async function saveKnowledge(
   const { content: prevContent, sha } = await getExistingKnowledge();
 
   const newKnowledge = [
-    ...JSON.parse(prevContent || '{}'),
+    ...JSON.parse(prevContent || '[]'),
     {
       prompt,
       completion: knowledge.solution.replace(/\s+/g, ''),

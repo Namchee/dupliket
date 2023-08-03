@@ -138,11 +138,13 @@ async function saveKnowledge(
     },
   ];
 
+  const knowledgeStr = JSON.stringify(newKnowledge);
+
   const params = {
     owner,
     repo,
     path: KNOWLEDGE_PATH,
-    content: JSON.stringify(newKnowledge),
+    content: Buffer.from(knowledgeStr).toString('base64'),
     message: 'chore(summarizr): update knowledge',
     sha: '',
   };

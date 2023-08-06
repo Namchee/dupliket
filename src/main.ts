@@ -13,14 +13,14 @@ const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig
 type Reaction = 'eyes' | '+1' | 'confused' | '-1';
 
 interface Knowledge {
-  id: number;
+  issue_number: number;
   title: string;
-  summary: string;
-  solution: string;
+  prompt: string;
+  completion: string;
 }
 
 interface GithubIssue {
-  id: number;
+  number: number;
   title: string;
   body: string;
 }
@@ -131,10 +131,10 @@ async function saveKnowledge(
   const newKnowledge = [
     ...JSON.parse(prevContent || '[]'),
     {
-      id: knowledge.id,
+      issue_number: knowledge.issue_number,
       title: knowledge.title,
-      prompt: knowledge.summary.replace(/\s+/g, ''),
-      completion: knowledge.solution.replace(/\s+/g, ''),
+      prompt: knowledge.prompt.replace(/\s+/g, ''),
+      completion: knowledge.completion.replace(/\s+/g, ''),
     },
   ];
 
@@ -242,10 +242,10 @@ async function run(): Promise<void> {
 
       await saveKnowledge(
         {
-          id: issue.id,
+          issue_number: issue.number,
           title: issue.title,
-          summary: problem,
-          solution: solution,
+          prompt: problem,
+          completion: solution,
         },
       );
 

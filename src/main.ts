@@ -20,6 +20,7 @@ interface Knowledge {
 }
 
 interface GithubIssue {
+  id: number;
   title: string;
   body: string;
 }
@@ -62,8 +63,9 @@ function formatIssueToPrompt(
 
 async function summarizeIssue(
   issue: GithubIssue,
-  comments: GithubComment[],
 ) {
+  const comments = await getIssuesComments();
+
   const key = getInput('openai_key');
   const model = getInput('model');
   const temperature = Number(getInput('temperature'));
@@ -173,21 +175,6 @@ async function hasWriteAccess(username: string): Promise<boolean> {
   }
 }
 
-async function getIssue(): Promise<GithubIssue> {
-  const token = getInput('access_token');
-  const octokit = getOctokit(token);
-
-  const { owner, repo, number } = context.issue;
-
-  const { data } = await octokit.rest.issues.get({
-    owner,
-    repo,
-    issue_number: number,
-  });
-
-  return data as unknown as GithubIssue;
-}
-
 async function getIssuesComments(): Promise<GithubComment[]> {
   const token = getInput('access_token');
   const octokit = getOctokit(token);
@@ -235,39 +222,40 @@ async function deleteReaction(commentID: number, reactionID: number): Promise<vo
 
 async function run(): Promise<void> {
   try {
-    const { number } = context.issue;
-
-    const comments = await getIssuesComments();
-    const anchor = comments.find(text => text.body && text.body.startsWith('/summarize'));
-
-    if (!anchor || !hasWriteAccess(anchor.user.name)) {
+    const issue = context.payload.issue as unknown as GithubIssue;
+    const comment = context.payload.comment as unknown as GithubComment;
+    
+    if (!hasWriteAccess(comment.user.name)) {
       return;
     }
 
-    const reaction = await createReaction('eyes', anchor.id);
-    const issue = await getIssue();
+    if (comment.body.startsWith('/add-knowledge')) {
+      const processingEmoji = await createReaction('eyes', comment.id);
 
-    let anchorSummary = promptPattern.exec(anchor.body as string);
+      let anchorSummary = promptPattern.exec(comment.body as string);
 
-    if (!anchorSummary) {
-      anchorSummary = await summarizeIssue(issue, comments) as RegExpExecArray;
+      if (!anchorSummary) {
+        anchorSummary = await summarizeIssue(issue) as RegExpExecArray;
+      }
+
+      const [_, problem, solution] = anchorSummary;
+
+      await saveKnowledge(
+        {
+          id: issue.id,
+          title: issue.title,
+          summary: problem,
+          solution: solution,
+        },
+      );
+
+      await Promise.all([
+        createReaction('+1', comment.id),
+        deleteReaction(comment.id, processingEmoji.id),
+      ]);
+    } else if (comment.body.startsWith('/delete-knowledge')) {
+
     }
-
-    const [_, problem, solution] = anchorSummary;
-
-    await saveKnowledge(
-      {
-        id: number,
-        title: issue.title,
-        summary: problem,
-        solution: solution,
-      },
-    );
-
-    await Promise.all([
-      createReaction('+1', anchor.id),
-      deleteReaction(anchor.id, reaction.id),
-    ]);
   } catch (err) {
     const error = err as Error;
     setFailed(error.message);

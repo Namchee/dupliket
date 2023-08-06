@@ -1,5 +1,3 @@
-import { Readable } from 'stream';
-
 import { getInput, setFailed } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
@@ -125,15 +123,15 @@ async function saveKnowledge(
 
   const { owner, repo } = context.issue;
 
-  const prompt = `ID: ${knowledge.id}\nTitle: ${knowledge.title}\nProblem: ${knowledge.summary.replace(/\s+/g, '')}`;
-
   const octokit = getOctokit(token);
   const { content: prevContent, sha } = await getExistingKnowledge();
 
   const newKnowledge = [
     ...JSON.parse(prevContent || '[]'),
     {
-      prompt,
+      id: knowledge.id,
+      title: knowledge.title,
+      prompt: knowledge.summary.replace(/\s+/g, ''),
       completion: knowledge.solution.replace(/\s+/g, ''),
     },
   ];

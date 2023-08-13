@@ -1,0 +1,8 @@
+[
+  {
+    "id": 123,
+    "title": "The reactive diff algorithm fails to notice manipulation",
+    "prompt": "User is trying to manipulate a component managed by the framework manually via DOM, but the DOM tree is not changed at all",
+    "completion": "Manual DOM manipulation is ill-advised when the component is already managed by the framework. Either write it without the framework or use the framework provided APIs to manipulate it."
+  }
+]

@@ -5,7 +5,7 @@ import { Configuration, OpenAIApi } from 'openai';
 
 import dedent from 'dedent';
 
-const KNOWLEDGE_PATH = '.github/issue_knowlegde.json';
+const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
 
 const prompt = `Summarize the problem and solution from the following conversation in the provided format. Conversation have a title that can be used to understand the context of the conversation. Interaction with conversation participants will be separated by '###'.`
 const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;

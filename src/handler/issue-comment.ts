@@ -1,7 +1,8 @@
-import { getInput, setFailed } from '@actions/core';
+import { getInput } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
-import { Configuration, OpenAIApi } from 'openai';
+import type { GithubIssue } from '@/types/github';
+import type { Knowledge } from '@/types/knowledge';
 
 import dedent from 'dedent';
 
@@ -11,19 +12,6 @@ const prompt = `Summarize the problem and solution from the following conversati
 const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;
 
 type Reaction = 'eyes' | '+1' | 'confused' | '-1';
-
-interface Knowledge {
-  issue_number: number;
-  title: string;
-  prompt: string;
-  completion: string;
-}
-
-interface GithubIssue {
-  number: number;
-  title: string;
-  body: string;
-}
 
 interface GithubComment {
   id: number;
@@ -61,6 +49,7 @@ function formatIssueToPrompt(
   `;
 }
 
+/*
 async function summarizeIssue(
   issue: GithubIssue,
 ) {
@@ -85,6 +74,7 @@ async function summarizeIssue(
 
   return promptPattern.exec(completion.data.object);
 }
+*/
 
 async function getExistingKnowledge(): Promise<RepositoryFile> {
   const token = getInput('access_token');
@@ -234,10 +224,11 @@ export async function handleIssueCommentEvent(): Promise<void> {
     let anchorSummary = promptPattern.exec(comment.body as string);
 
     if (!anchorSummary) {
-      anchorSummary = await summarizeIssue(issue) as RegExpExecArray;
+      // anchorSummary = await summarizeIssue(issue) as RegExpExecArray;
+      anchorSummary = null;
     }
 
-    const [_, problem, solution] = anchorSummary;
+    const [_, problem, solution] = anchorSummary as RegExpExecArray;
 
     await saveKnowledge(
       {

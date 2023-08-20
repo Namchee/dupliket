@@ -5,21 +5,25 @@ inputs:
   access_token:
     required: true
     description: GitHub Personal Access Token
-  openai_key:
+  api_key:
     required: true
-    description: OpenAI API Key
-  temperature:
+    description: API Key
+  model_provider:
     required: false
-    description: GPT model temperature
-    default: 0.5
+    description: Model provider
+    default: openai
+  model_name:
+    required: false
+    description: Model to be used for summarization and triaging
+    default: gpt-3.5-turbo
   max_tokens:
     required: false
-    description: Maximum token length for issue summarization
-    default: 200
-  model:
-    required: false
-    description: AI model to be used when interacting with OpenAI. Only allows fine-tunable models
-    default: ada
+    description: Maximum tokens for summarization
+    default: -1
+  confidence:
+    required: false;
+    description: Minimum similarty for triaging issues
+    default: 0.9
 runs:
   using: 'node16'
   main: 'dist/index.js'

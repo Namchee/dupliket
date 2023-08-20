@@ -1,36 +1,14 @@
 import { getInput } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
-import type { GithubIssue } from '@/types/github';
+import type { GithubIssue, GithubComment } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';
 
 import dedent from 'dedent';
 
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
 
-const prompt = `Summarize the problem and solution from the following conversation in the provided format. Conversation have a title that can be used to understand the context of the conversation. Interaction with conversation participants will be separated by '###'.`
 const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;
-
-type Reaction = 'eyes' | '+1' | 'confused' | '-1';
-
-interface GithubComment {
-  id: number;
-  user: {
-    name: string;
-  };
-  body: string;
-}
-
-interface GithubReaction {
-  id: number;
-  content: Reaction;
-}
-
-interface RepositoryFile {
-  content: string;
-  sha: string;
-}
-
 
 function formatIssueToPrompt(
   issue: GithubIssue,
@@ -116,10 +94,10 @@ async function saveKnowledge(
   const { owner, repo } = context.issue;
 
   const octokit = getOctokit(token);
-  const { content: prevContent, sha } = await getExistingKnowledge();
+  const { content, sha } = await getExistingKnowledge();
 
   const newKnowledge = [
-    ...JSON.parse(prevContent || '[]'),
+    ...content,
     {
       issue_number: knowledge.issue_number,
       title: knowledge.title,

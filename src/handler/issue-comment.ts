@@ -4,28 +4,9 @@ import { getOctokit, context } from '@actions/github';
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';
 
-import dedent from 'dedent';
-
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
 
 const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;
-
-function formatIssueToPrompt(
-  issue: GithubIssue,
-  comments: GithubComment[],
-) {
-  const commentStr = comments.map(comment => `@${comment.user.name}: ${comment.body}`);
-  return dedent`
-  Title: ${issue.title}
-
-  ###
-  ${commentStr.join("\n###\n")}
-  ###
-
-  Problem:
-  Solution:
-  `;
-}
 
 /*
 async function summarizeIssue(

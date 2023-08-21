@@ -12,17 +12,25 @@ inputs:
     required: false
     description: Model provider
     default: openai
-  model_name:
+  summarization_model:
     required: false
-    description: Model to be used for summarization and triaging
+    description: Model to be used for summarization
     default: gpt-3.5-turbo
+  embedding_model:
+    required: false
+    description: Model to be used for text embeddings
+    default: text-embedding-ada-002
   max_tokens:
     required: false
     description: Maximum tokens for summarization
     default: -1
-  confidence:
+  max_issues:
+    required: false
+    description: Maximum number of similar issues to be returned
+    default: 3
+  similarity_threshold:
     required: false;
-    description: Minimum similarty for triaging issues
+    description: Minimum similarity for triaging issues
     default: 0.9
 runs:
   using: 'node16'

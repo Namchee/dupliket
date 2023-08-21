@@ -5,21 +5,12 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { HuggingFaceInferenceEmbeddings } from 'langchain/embeddings/hf';
 
-import type { Knowledge } from '@/types/knowledge';
-
-const EMBEDDING_PROVIDER = {
-  openai: OpenAIEmbeddings,
-  huggingface: HuggingFaceInferenceEmbeddings,
-}
+import type { Knowledge, IssueData } from '@/types/knowledge';
 
 function getEmbeddings() {
   const apiKey = getInput('api_key');
   const provider = getInput('model_provider');
-  const model = getInput('model_name');
-
-  if (!(provider in EMBEDDING_PROVIDER)) {
-    throw new Error('Unsupported model provider.');
-  }
+  const model = getInput('embedding_model');
 
   switch (provider) {
     case 'openai': return new OpenAIEmbeddings({
@@ -34,14 +25,29 @@ function getEmbeddings() {
   }
 }
 
-export function getSimilarIssues(
+export async function getSimilarIssues(
   issue: string,
   knowledges: Knowledge[],
-) {
-  const threshold = Number(getInput('confidence'));
+): Promise<IssueData[]> {
+  const threshold = Number(getInput('similarity_threshold'));
+  const numberOfIssues = Number(getInput('max_issues'));
+
+  const texts = [];
+  const meta = [];
+
+  for (let idx = 0; idx < knowledges.length; idx++) {
+    const { prompt, ...metadata } = knowledges[idx];
+
+    texts.push(prompt);
+    meta.push(metadata);
+  }
+
   const embeddings = getEmbeddings();
 
-  const store = new MemoryVectorStore(embeddings);
+  const store = await MemoryVectorStore.fromTexts(texts, meta, embeddings);
 
-  return store.similaritySearchWithScore(issue, threshold);
+  let result = await store.similaritySearchWithScore(issue, numberOfIssues);
+  result = result.filter(document => document[1] >= threshold);
+
+  return result.map(document => document[0].metadata as IssueData);
 }

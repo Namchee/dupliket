@@ -1,6 +1,6 @@
 import type { Knowledge } from '@/types/knowledge';
 
-type Reaction = 'eyes' | '+1' | 'confused' | '-1';
+export type Reaction = 'eyes' | '+1' | 'confused' | '-1';
 
 interface GithubUser {
   name: string;

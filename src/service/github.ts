@@ -1,7 +1,7 @@
 import { getInput } from '@actions/core';
 import { getOctokit as newOctokit, context } from '@actions/github';
 
-import type { GithubError, KnowledgeFile } from '@/types/github';
+import type { GithubError, GithubReaction, KnowledgeFile, Reaction } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';
 
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
@@ -48,4 +48,45 @@ export async function getExistingKnowledge(): Promise<KnowledgeFile> {
 
     throw error;
   }
+}
+
+export async function createIssueComment(body: string): Promise<void> {
+  const octokit = getOctokit();
+
+  const { owner, repo, number } = context.issue;
+
+  await octokit.rest.issues.createComment({
+    body,
+    issue_number: number,
+    owner,
+    repo,
+  });
+}
+
+export async function createReaction(reaction: Reaction, commentID: number): Promise<GithubReaction> {
+  const octokit = getOctokit();
+
+  const { owner, repo } = context.issue;
+
+  const { data } = await octokit.rest.reactions.createForIssueComment({
+    owner,
+    repo,
+    comment_id: commentID,
+    content: reaction,
+  });
+
+  return data as unknown as GithubReaction;
+}
+
+export async function deleteReaction(commentID: number, reactionID: number): Promise<void> {
+  const octokit = getOctokit();
+
+  const { owner, repo } = context.issue;
+
+  await octokit.rest.reactions.deleteForIssueComment({
+    owner,
+    repo,
+    comment_id: commentID,
+    reaction_id: reactionID,
+  })
 }

@@ -35,38 +35,6 @@ async function summarizeIssue(
 }
 */
 
-async function getExistingKnowledge(): Promise<RepositoryFile> {
-  const token = getInput('access_token');
-  const octokit = getOctokit(token);
-
-  const { owner, repo } = context.issue;
-
-  try {
-    const existingContent = await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: KNOWLEDGE_PATH,
-    }) as {
-      data: {
-        sha: string,
-        content: string,
-      },
-    };
-
-    const text = Buffer.from(existingContent.data.content, 'base64').toString('utf8')
-
-    return {
-      content: text,
-      sha: existingContent.data.sha,
-    };
-  } catch (err) {
-    return {
-      content: '',
-      sha: '',
-    };
-  }
-}
-
 async function saveKnowledge(
   knowledge: Knowledge,
 ): Promise<void> {
@@ -137,36 +105,6 @@ async function getIssuesComments(): Promise<GithubComment[]> {
   })
 
   return data as unknown as GithubComment[];
-}
-
-async function createReaction(reaction: Reaction, commentID: number): Promise<GithubReaction> {
-  const token = getInput('access_token');
-  const octokit = getOctokit(token);
-
-  const { owner, repo } = context.issue;
-
-  const { data } = await octokit.rest.reactions.createForIssueComment({
-    owner,
-    repo,
-    comment_id: commentID,
-    content: reaction,
-  });
-
-  return data as unknown as GithubReaction;
-}
-
-async function deleteReaction(commentID: number, reactionID: number): Promise<void> {
-  const token = getInput('access_token');
-  const octokit = getOctokit(token);
-
-  const { owner, repo } = context.issue;
-
-  await octokit.rest.reactions.deleteForIssueComment({
-    owner,
-    repo,
-    comment_id: commentID,
-    reaction_id: reactionID,
-  })
 }
 
 export async function handleIssueCommentEvent(): Promise<void> {

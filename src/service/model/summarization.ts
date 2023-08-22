@@ -1,7 +1,9 @@
 import { getInput } from '@actions/core';
+
 import dedent from 'dedent';
 
 import { OpenAI } from 'langchain/llms/openai';
+import { HuggingFaceInference } from 'langchain/llms/hf';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
 
@@ -12,15 +14,24 @@ Conversation may have a title or a link to a reproduction attempt that can be us
 const bodyPrompt = `Summarize the following article. The article may have a title or a link to a reproduction attempt that can be used to understand the context. Emphasize the problems that can be found in the article.`;
 
 function getLLM() {
-  const modelKey = getInput('api_key');
+  const apiKey = getInput('api_key');
+  const provider = getInput('model_provider');
   const modelName = getInput('model_name');
   const maxTokens = Number(getInput('max_tokens'));
-
-  return new OpenAI({
-    openAIApiKey: modelKey,
-    modelName,
-    maxTokens,
-  });
+  
+  switch (provider) {
+    case 'openai': return new OpenAI({
+      openAIApiKey: apiKey,
+      modelName,
+      maxTokens,
+    });
+    case 'huggingface': return new HuggingFaceInference({
+      apiKey,
+      model: modelName,
+      maxTokens,
+    });
+    default: throw new Error('Unsupported model provider.');
+  }
 }
 
 function formatIssueToPrompt(
@@ -47,7 +58,8 @@ export async function summarizeIssueBody(issue: GithubIssue): Promise<string> {
     dedent`
     ${bodyPrompt}
 
-    ${issue.body}
+    Title: ${issue.title}
+    Content: ${issue.body}
     `,
   );
 }

@@ -1,11 +1,14 @@
 import { context } from '@actions/github';
 
-import { OpenAIEmbeddings } from "langchain/embeddings/openai";
-
 import { getExistingKnowledge } from '@/service/github';
 
+import { getSimilarIssues } from '@/service/model/similarity';
+import { summarizeIssueBody } from '@/service/model/summarization';
+
+import type { GithubIssue } from '@/types/github';
+
 export async function handleIssueCreatedEvent() {
-  const { issue } = context;
+  const issue = context.payload.issue as GithubIssue;
 
   const { knowledges } = await getExistingKnowledge();
 
@@ -13,6 +16,5 @@ export async function handleIssueCreatedEvent() {
     return;
   }
 
-  const texts = knowledges.map(k => k.prompt);
-  const meta = knowledges.map(({ prompt, ...rest }) => rest);
+  const issueSummary = await summarizeIssueBody(issue);
 }

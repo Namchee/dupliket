@@ -50,6 +50,60 @@ export async function getExistingKnowledge(): Promise<KnowledgeFile> {
   }
 }
 
+export async function saveKnowledge(
+  knowledge: Knowledge,
+): Promise<void> {
+  const { owner, repo } = context.issue;
+
+  const octokit = getOctokit();
+  const { knowledges, sha } = await getExistingKnowledge();
+
+  const newKnowledge = [
+    ...knowledges,
+    {
+      issue_number: knowledge.issue_number,
+      title: knowledge.title,
+      prompt: knowledge.prompt.replace(/\s+/g, ''),
+      completion: knowledge.completion.replace(/\s+/g, ''),
+    },
+  ];
+
+  const knowledgeStr = JSON.stringify(newKnowledge);
+
+  const params = {
+    owner,
+    repo,
+    path: KNOWLEDGE_PATH,
+    content: Buffer.from(knowledgeStr).toString('base64'),
+    message: 'chore(summarizr): update knowledge',
+    sha: '',
+  };
+
+  if (sha) {
+    params['sha'] = sha;
+  }
+
+  await octokit.rest.repos.createOrUpdateFileContents(params);
+}
+
+export async function hasWriteAccess(username: string): Promise<boolean> {
+  const octokit = getOctokit();
+
+  const { owner, repo } = context.issue;
+
+  try {
+    await octokit.rest.repos.checkCollaborator({
+      owner,
+      repo,
+      username,
+    });
+
+    return true;
+  } catch (err) {
+    return false;
+  }
+}
+
 export async function createIssueComment(body: string): Promise<void> {
   const octokit = getOctokit();
 

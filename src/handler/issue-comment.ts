@@ -1,10 +1,10 @@
 import { getInput } from '@actions/core';
 import { getOctokit, context } from '@actions/github';
 
+import { createReaction, getExistingKnowledge, deleteReaction, hasWriteAccess } from '@/service/github';
+
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';
-
-const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
 
 const promptPattern = /Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;
 
@@ -34,63 +34,6 @@ async function summarizeIssue(
   return promptPattern.exec(completion.data.object);
 }
 */
-
-async function saveKnowledge(
-  knowledge: Knowledge,
-): Promise<void> {
-  const token = getInput('access_token');
-
-  const { owner, repo } = context.issue;
-
-  const octokit = getOctokit(token);
-  const { content, sha } = await getExistingKnowledge();
-
-  const newKnowledge = [
-    ...content,
-    {
-      issue_number: knowledge.issue_number,
-      title: knowledge.title,
-      prompt: knowledge.prompt.replace(/\s+/g, ''),
-      completion: knowledge.completion.replace(/\s+/g, ''),
-    },
-  ];
-
-  const knowledgeStr = JSON.stringify(newKnowledge);
-
-  const params = {
-    owner,
-    repo,
-    path: KNOWLEDGE_PATH,
-    content: Buffer.from(knowledgeStr).toString('base64'),
-    message: 'chore(summarizr): update knowledge',
-    sha: '',
-  };
-
-  if (sha) {
-    params['sha'] = sha;
-  }
-
-  await octokit.rest.repos.createOrUpdateFileContents(params);
-}
-
-async function hasWriteAccess(username: string): Promise<boolean> {
-  const token = getInput('access_token');
-  const octokit = getOctokit(token);
-
-  const { owner, repo } = context.issue;
-
-  try {
-    await octokit.rest.repos.checkCollaborator({
-      owner,
-      repo,
-      username,
-    });
-
-    return true;
-  } catch (err) {
-    return false;
-  }
-}
 
 async function getIssuesComments(): Promise<GithubComment[]> {
   const token = getInput('access_token');

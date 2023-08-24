@@ -12,8 +12,8 @@ export interface GithubIssue {
   body: string;
 }
 
-export interface KnowledgeFile {
-  knowledges: Knowledge[];
+export interface RepositoryFile {
+  content: string;
   sha?: string;
 }
 

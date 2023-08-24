@@ -1,7 +1,7 @@
 import { getInput } from '@actions/core';
 import { getOctokit as newOctokit, context } from '@actions/github';
 
-import type { GithubError, GithubReaction, KnowledgeFile, Reaction, GithubComment } from '@/types/github';
+import type { GithubError, GithubReaction, RepositoryFile, Reaction, GithubComment } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';
 
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
@@ -11,7 +11,7 @@ function getOctokit() {
   return newOctokit(token);
 }
 
-export async function getExistingKnowledge(): Promise<KnowledgeFile> {
+export async function getRepositoryContent(): Promise<RepositoryFile> {
   const octokit = getOctokit();
 
   const { owner, repo } = context.issue;
@@ -28,13 +28,13 @@ export async function getExistingKnowledge(): Promise<KnowledgeFile> {
       },
     };
 
-    const textContent = Buffer.from(
+    const content = Buffer.from(
       existingContent.data.content,
       'base64',
     ).toString('utf8');
 
     return {
-      knowledges: JSON.parse(textContent) as Knowledge[],
+      content,
       sha: existingContent.data.sha,
     };
   } catch (err) {
@@ -42,7 +42,7 @@ export async function getExistingKnowledge(): Promise<KnowledgeFile> {
 
     if (error.status === 404) {
       return {
-        knowledges: [],
+        content: '',
       };
     }
 
@@ -50,31 +50,19 @@ export async function getExistingKnowledge(): Promise<KnowledgeFile> {
   }
 }
 
-export async function saveKnowledge(
-  knowledge: Knowledge,
+export async function updateRepositoryContent(
+  content: string,
+  sha?: string,
 ): Promise<void> {
   const { owner, repo } = context.issue;
 
   const octokit = getOctokit();
-  const { knowledges, sha } = await getExistingKnowledge();
-
-  const newKnowledge = [
-    ...knowledges,
-    {
-      issue_number: knowledge.issue_number,
-      title: knowledge.title,
-      prompt: knowledge.prompt.replace(/\s+/g, ''),
-      completion: knowledge.completion.replace(/\s+/g, ''),
-    },
-  ];
-
-  const knowledgeStr = JSON.stringify(newKnowledge);
 
   const params = {
     owner,
     repo,
     path: KNOWLEDGE_PATH,
-    content: Buffer.from(knowledgeStr).toString('base64'),
+    content: Buffer.from(content).toString('base64'),
     message: 'chore(summarizr): update knowledge',
     sha: '',
   };

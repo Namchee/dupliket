@@ -2,18 +2,20 @@ import { context } from '@actions/github';
 
 import dedent from 'dedent';
 
-import { createIssueComment, getExistingKnowledge } from '@/service/github';
+import { createIssueComment, getRepositoryContent } from '@/service/github';
 
 import { getSimilarIssues } from '@/service/model/similarity';
 import { summarizeIssueBody } from '@/service/model/summarization';
 
 import type { GithubIssue } from '@/types/github';
+import type { Knowledge } from '@/types/knowledge';
 
 export async function handleIssueCreatedEvent(): Promise<void> {
   const issue = context.payload.issue as GithubIssue;
 
-  const { knowledges } = await getExistingKnowledge();
-
+  const { content } = await getRepositoryContent();
+  const knowledges = JSON.parse(content) as Knowledge[]
+;
   if (!knowledges.length) {
     return;
   }

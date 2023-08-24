@@ -4,7 +4,9 @@ export interface IssueData {
   completion: string;
 }
 
-export interface Knowledge extends IssueData {
+export interface KnowledgeInput {
   prompt: string;
   completion: string;
 }
+
+export type Knowledge = KnowledgeInput & IssueData;

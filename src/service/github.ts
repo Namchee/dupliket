@@ -1,7 +1,7 @@
 import { getInput } from '@actions/core';
 import { getOctokit as newOctokit, context } from '@actions/github';
 
-import type { GithubError, GithubReaction, KnowledgeFile, Reaction } from '@/types/github';
+import type { GithubError, GithubReaction, KnowledgeFile, Reaction, GithubComment } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';
 
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
@@ -102,6 +102,20 @@ export async function hasWriteAccess(username: string): Promise<boolean> {
   } catch (err) {
     return false;
   }
+}
+
+export async function getIssueComments(): Promise<GithubComment[]> {
+  const octokit = getOctokit();
+
+  const { owner, repo, number } = context.issue;
+
+  const { data } = await octokit.rest.issues.listComments({
+    owner,
+    repo,
+    issue_number: number,
+  })
+
+  return data as unknown as GithubComment[];
 }
 
 export async function createIssueComment(body: string): Promise<void> {

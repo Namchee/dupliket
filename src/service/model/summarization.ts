@@ -6,6 +6,8 @@ import { OpenAI } from 'langchain/llms/openai';
 import { HuggingFaceInference } from 'langchain/llms/hf';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
+import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
+import { KnowledgeInput } from '@/types/knowledge';
 
 const conversationPrompt = `Summarize the problem and solution from the following conversation in the provided format. Interaction with conversation participants will be separated by '###'.
 
@@ -67,11 +69,21 @@ export async function summarizeIssueBody(issue: GithubIssue): Promise<string> {
 export async function summarizeIssue(
   issue: GithubIssue,
   comments: GithubComment[],
-): Promise<string> {
+): Promise<KnowledgeInput> {
   const llm = getLLM();
 
   const prompt = `${conversationPrompt}\n\n${formatIssueToPrompt(issue, comments)}`;
 
-  return llm.call(prompt);
+  const completion = await llm.call(prompt);
+  const matchArr = ADD_KNOWLEDGE_PATTERN.exec(completion) as RegExpExecArray;
+
+  if (matchArr.length === 3) {
+    return {
+      prompt: matchArr[1],
+      completion: matchArr[2],
+    };
+  }
+
+  throw new Error(`Failed to extract summarized knowledge from GPT. Length is ${matchArr.length}`);
 }
 

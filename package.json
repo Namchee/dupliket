@@ -12,6 +12,7 @@
   "author": "",
   "license": "The Unlicense",
   "devDependencies": {
+    "@namchee/eslint-config": "^1.0.2",
     "@types/dedent": "^0.7.0",
     "@types/node": "^20.3.2",
     "@vercel/ncc": "^0.36.1",
@@ -25,7 +26,7 @@
   "dependencies": {
     "@actions/core": "^1.10.0",
     "@actions/github": "^5.1.1",
-    "@huggingface/inference": "^2.6.1",
+    "@huggingface/inference": "^1.5.1",
     "dedent": "^0.7.0",
     "langchain": "^0.0.131"
   }

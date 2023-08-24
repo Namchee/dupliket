@@ -35,7 +35,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
 
   ${references.join('\n')}
 
-  <sub>This comment is created by Halp, your friendly triaging GitHub Action</sub>
+  <sub>This comment is created by Halp, your friendly GitHub Action triaging bot.</sub>
   `;
 
   await createIssueComment(outputBody);

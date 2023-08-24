@@ -6,7 +6,7 @@ import { summarizeIssue } from '@/service/model/summarization';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { KnowledgeInput } from '@/types/knowledge';
+import type { Knowledge, KnowledgeInput } from '@/types/knowledge';
 
 async function handleAddKnowledgeCommand(
   issue: GithubIssue,
@@ -49,8 +49,26 @@ async function handleAddKnowledgeCommand(
   ]);
 }
 
-async function handleDeleteKnowledgeCommand(): Promise<void> {
+async function handleDeleteKnowledgeCommand(
+  issue: GithubIssue,
+  comment: GithubComment,
+): Promise<void> {
+  const processingEmoji = await createReaction('eyes', comment.id);
 
+  const { content, sha } = await getRepositoryContent();
+  const knowlegdes = JSON.parse(content) as Knowledge[];
+
+  const newKnowledges = knowlegdes.filter(knowledge => knowledge.issue_number !== issue.number);
+
+  await updateRepositoryContent(
+    JSON.stringify(newKnowledges),
+    sha,
+  );
+
+  await Promise.all([
+    createReaction('+1', comment.id),
+    deleteReaction(comment.id, processingEmoji.id),
+  ]);
 }
 
 export async function handleIssueCommentEvent(): Promise<void> {
@@ -64,7 +82,7 @@ export async function handleIssueCommentEvent(): Promise<void> {
   if (comment.body.startsWith('/add-knowledge')) {
     await handleAddKnowledgeCommand(issue, comment);
   } else if (comment.body.startsWith('/delete-knowledge')) {
-
+    await handleDeleteKnowledgeCommand(issue, comment);
   }
 }
 

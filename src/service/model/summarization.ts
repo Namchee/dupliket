@@ -19,10 +19,8 @@ const bodyPrompt = `Summarize the following article. The article may have a titl
 function getLLM() {
   const apiKey = getInput('api_key');
   const provider = getInput('model_provider');
-  const modelName = getInput('model_name');
+  const modelName = getInput('summarization_model');
   const maxTokens = Number(getInput('max_tokens'));
-
-  console.log(apiKey.length, provider, modelName, maxTokens);
 
   switch (provider) {
     case 'openai':

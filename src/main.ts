@@ -5,9 +5,9 @@ import { handleIssueCreatedEvent } from '@/handler/issue-created';
 import { handleIssueCommentEvent } from '@/handler/issue-comment';
 
 const HANDLER_MAP = {
-  'issues': handleIssueCreatedEvent,
-  'issue_comment': handleIssueCommentEvent,
-}
+  issues: handleIssueCreatedEvent,
+  issue_comment: handleIssueCommentEvent,
+};
 
 async function run(): Promise<void> {
   try {

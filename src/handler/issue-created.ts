@@ -14,8 +14,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   const issue = context.payload.issue as GithubIssue;
 
   const { content } = await getRepositoryContent();
-  const knowledges = JSON.parse(content) as Knowledge[]
-;
+  const knowledges = JSON.parse(content) as Knowledge[];
   if (!knowledges.length) {
     return;
   }
@@ -23,8 +22,12 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   const issueSummary = await summarizeIssueBody(issue);
   const similarIssues = await getSimilarIssues(issueSummary, knowledges);
 
-  const possibleSolutions = similarIssues.map((issue, index) => `${index + 1}. ${issue.completion}`);
-  const references = similarIssues.map((issue, index) => `[${index + 1}] ${issue.title} #${issue.issue_number}`);
+  const possibleSolutions = similarIssues.map(
+    (issue, index) => `${index + 1}. ${issue.completion}`,
+  );
+  const references = similarIssues.map(
+    (issue, index) => `[${index + 1}] ${issue.title} #${issue.issue_number}`,
+  );
 
   const outputBody = dedent`
   ## Possible Solutions

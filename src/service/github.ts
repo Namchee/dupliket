@@ -1,8 +1,13 @@
 import { getInput } from '@actions/core';
 import { getOctokit as newOctokit, context } from '@actions/github';
 
-import type { GithubError, GithubReaction, RepositoryFile, Reaction, GithubComment } from '@/types/github';
-import type { Knowledge } from '@/types/knowledge';
+import type {
+  GithubError,
+  GithubReaction,
+  RepositoryFile,
+  Reaction,
+  GithubComment,
+} from '@/types/github';
 
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
 
@@ -17,15 +22,15 @@ export async function getRepositoryContent(): Promise<RepositoryFile> {
   const { owner, repo } = context.issue;
 
   try {
-    const existingContent = await octokit.rest.repos.getContent({
+    const existingContent = (await octokit.rest.repos.getContent({
       owner,
       repo,
       path: KNOWLEDGE_PATH,
-    }) as {
+    })) as {
       data: {
-        sha: string,
-        content: string,
-      },
+        sha: string;
+        content: string;
+      };
     };
 
     const content = Buffer.from(
@@ -68,7 +73,7 @@ export async function updateRepositoryContent(
   };
 
   if (sha) {
-    params['sha'] = sha;
+    params.sha = sha;
   }
 
   await octokit.rest.repos.createOrUpdateFileContents(params);
@@ -101,7 +106,7 @@ export async function getIssueComments(): Promise<GithubComment[]> {
     owner,
     repo,
     issue_number: number,
-  })
+  });
 
   return data as unknown as GithubComment[];
 }
@@ -119,7 +124,10 @@ export async function createIssueComment(body: string): Promise<void> {
   });
 }
 
-export async function createReaction(reaction: Reaction, commentID: number): Promise<GithubReaction> {
+export async function createReaction(
+  reaction: Reaction,
+  commentID: number,
+): Promise<GithubReaction> {
   const octokit = getOctokit();
 
   const { owner, repo } = context.issue;
@@ -134,7 +142,10 @@ export async function createReaction(reaction: Reaction, commentID: number): Pro
   return data as unknown as GithubReaction;
 }
 
-export async function deleteReaction(commentID: number, reactionID: number): Promise<void> {
+export async function deleteReaction(
+  commentID: number,
+  reactionID: number,
+): Promise<void> {
   const octokit = getOctokit();
 
   const { owner, repo } = context.issue;
@@ -144,5 +155,5 @@ export async function deleteReaction(commentID: number, reactionID: number): Pro
     repo,
     comment_id: commentID,
     reaction_id: reactionID,
-  })
+  });
 }

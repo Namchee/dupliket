@@ -13,15 +13,18 @@ function getEmbeddings() {
   const model = getInput('embedding_model');
 
   switch (provider) {
-    case 'openai': return new OpenAIEmbeddings({
-      openAIApiKey: apiKey,
-      modelName: model,
-    });
-    case 'huggingface': return new HuggingFaceInferenceEmbeddings({
-      apiKey,
-      model,
-    });
-    default: throw new Error('Unsupported model provider.');
+    case 'openai':
+      return new OpenAIEmbeddings({
+        openAIApiKey: apiKey,
+        modelName: model,
+      });
+    case 'huggingface':
+      return new HuggingFaceInferenceEmbeddings({
+        apiKey,
+        model,
+      });
+    default:
+      throw new Error('Unsupported model provider.');
   }
 }
 

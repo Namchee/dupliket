@@ -1,6 +1,13 @@
 import { context } from '@actions/github';
 
-import { createReaction, deleteReaction, getIssueComments, getRepositoryContent, hasWriteAccess, updateRepositoryContent } from '@/service/github';
+import {
+  createReaction,
+  deleteReaction,
+  getIssueComments,
+  getRepositoryContent,
+  hasWriteAccess,
+  updateRepositoryContent,
+} from '@/service/github';
 import { summarizeIssue } from '@/service/model/summarization';
 
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
@@ -10,7 +17,7 @@ import type { Knowledge, KnowledgeInput } from '@/types/knowledge';
 
 async function handleAddKnowledgeCommand(
   issue: GithubIssue,
-  comment: GithubComment
+  comment: GithubComment,
 ): Promise<void> {
   const processingEmoji = await createReaction('eyes', comment.id);
 
@@ -28,7 +35,7 @@ async function handleAddKnowledgeCommand(
 
     knowledgeInput = await summarizeIssue(issue, comments);
 
-    // temporarily log this
+    // Temporarily log this
     console.log(knowledgeInput);
   }
 
@@ -61,12 +68,11 @@ async function handleDeleteKnowledgeCommand(
   const { content, sha } = await getRepositoryContent();
   const knowlegdes = JSON.parse(content) as Knowledge[];
 
-  const newKnowledges = knowlegdes.filter(knowledge => knowledge.issue_number !== issue.number);
-
-  await updateRepositoryContent(
-    JSON.stringify(newKnowledges),
-    sha,
+  const newKnowledges = knowlegdes.filter(
+    knowledge => knowledge.issue_number !== issue.number,
   );
+
+  await updateRepositoryContent(JSON.stringify(newKnowledges), sha);
 
   await Promise.all([
     createReaction('+1', comment.id),
@@ -88,4 +94,3 @@ export async function handleIssueCommentEvent(): Promise<void> {
     await handleDeleteKnowledgeCommand(issue, comment);
   }
 }
-

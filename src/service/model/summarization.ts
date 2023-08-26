@@ -5,9 +5,10 @@ import dedent from 'dedent';
 import { OpenAI } from 'langchain/llms/openai';
 import { HuggingFaceInference } from 'langchain/llms/hf';
 
-import type { GithubIssue, GithubComment } from '@/types/github';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
-import { KnowledgeInput } from '@/types/knowledge';
+
+import type { GithubIssue, GithubComment } from '@/types/github';
+import type { KnowledgeInput } from '@/types/knowledge';
 
 const conversationPrompt = `Summarize the problem and solution from the following conversation in the provided format. Interaction with conversation participants will be separated by '---'.
 
@@ -20,32 +21,34 @@ function getLLM() {
   const provider = getInput('model_provider');
   const modelName = getInput('model_name');
   const maxTokens = Number(getInput('max_tokens'));
-  
+
   switch (provider) {
-    case 'openai': return new OpenAI({
-      openAIApiKey: apiKey,
-      modelName,
-      maxTokens,
-    });
-    case 'huggingface': return new HuggingFaceInference({
-      apiKey,
-      model: modelName,
-      maxTokens,
-    });
-    default: throw new Error('Unsupported model provider.');
+    case 'openai':
+      return new OpenAI({
+        openAIApiKey: apiKey,
+        modelName,
+        maxTokens,
+      });
+    case 'huggingface':
+      return new HuggingFaceInference({
+        apiKey,
+        model: modelName,
+        maxTokens,
+      });
+    default:
+      throw new Error('Unsupported model provider.');
   }
 }
 
-function formatIssueToPrompt(
-  issue: GithubIssue,
-  comments: GithubComment[],
-) {
-  const commentStr = comments.map(comment => `@${comment.user.name}: ${comment.body}`);
+function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
+  const commentStr = comments.map(
+    comment => `@${comment.user.name}: ${comment.body}`,
+  );
   return dedent`
   Title: ${issue.title}
 
   ---
-  ${commentStr.join("\n---\n")}
+  ${commentStr.join('\n---\n')}
   ---
 
   Problem:
@@ -72,7 +75,10 @@ export async function summarizeIssue(
 ): Promise<KnowledgeInput> {
   const llm = getLLM();
 
-  const prompt = `${conversationPrompt}\n\n${formatIssueToPrompt(issue, comments)}`;
+  const prompt = `${conversationPrompt}\n\n${formatIssueToPrompt(
+    issue,
+    comments,
+  )}`;
 
   const completion = await llm.call(prompt);
   const matchArr = ADD_KNOWLEDGE_PATTERN.exec(completion) as RegExpExecArray;
@@ -84,6 +90,7 @@ export async function summarizeIssue(
     };
   }
 
-  throw new Error(`Failed to extract summarized knowledge from GPT. Length is ${matchArr.length}`);
+  throw new Error(
+    `Failed to extract summarized knowledge from GPT. Length is ${matchArr.length}`,
+  );
 }
-

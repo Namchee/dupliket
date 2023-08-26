@@ -33,5 +33,5 @@ inputs:
     description: Minimum similarity for triaging issues
     default: 0.9
 runs:
-  using: 'node18'
+  using: 'node20'
   main: 'dist/index.js'

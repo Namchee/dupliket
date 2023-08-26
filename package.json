@@ -36,6 +36,7 @@
     "@actions/github": "^5.1.1",
     "@huggingface/inference": "^1.5.1",
     "dedent": "^0.7.0",
-    "langchain": "^0.0.131"
+    "langchain": "^0.0.131",
+    "openai": "^4.2.0"
   }
 }

@@ -31,7 +31,8 @@ async function handleAddKnowledgeCommand(
       completion: solution,
     };
   } else {
-    const comments = await getIssueComments();
+    let comments = await getIssueComments();
+    comments = comments.filter(comment => comment.user.type !== 'Bot');
 
     knowledgeInput = await summarizeIssue(issue, comments);
 

@@ -2,6 +2,7 @@ export type Reaction = 'eyes' | '+1' | 'confused' | '-1';
 
 interface GithubUser {
   name: string;
+  type: 'User' | 'Bot';
 }
 
 export interface GithubIssue {

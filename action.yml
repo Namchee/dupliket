@@ -23,7 +23,7 @@ inputs:
   max_tokens:
     required: false
     description: Maximum tokens for summarization
-    default: -1
+    default: 250
   max_issues:
     required: false
     description: Maximum number of similar issues to be returned

@@ -12,7 +12,6 @@ const HANDLER_MAP = {
 async function run(): Promise<void> {
   try {
     const event = context.eventName;
-    console.log(event);
 
     if (event in HANDLER_MAP) {
       const handler = HANDLER_MAP[event as keyof typeof HANDLER_MAP];

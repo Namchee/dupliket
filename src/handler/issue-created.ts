@@ -20,6 +20,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   }
 
   const issueSummary = await summarizeIssueBody(issue);
+  console.log(issueSummary);
   const similarIssues = await getSimilarIssues(issueSummary, knowledges);
 
   const possibleSolutions = similarIssues.map(

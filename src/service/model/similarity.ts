@@ -49,7 +49,11 @@ export async function getSimilarIssues(
 
   const store = await MemoryVectorStore.fromTexts(texts, meta, embeddings);
 
+  console.log('store created');
+
   let result = await store.similaritySearchWithScore(issue, numberOfIssues);
+
+  console.log(result);
   result = result.filter(document => document[1] >= threshold);
 
   return result.map(document => document[0].metadata as IssueData);

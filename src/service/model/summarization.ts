@@ -22,6 +22,8 @@ function getLLM() {
   const modelName = getInput('model_name');
   const maxTokens = Number(getInput('max_tokens'));
 
+  console.log(apiKey.length, provider, modelName, maxTokens);
+
   switch (provider) {
     case 'openai':
       return new OpenAI({

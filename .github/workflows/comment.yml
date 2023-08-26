@@ -16,4 +16,4 @@ jobs:
         uses: ./
         with:
           access_token: ${{ secrets.GH_TOKEN }}
-          openai_key: ${{ secrets.OPENAI_KEY }}
+          api_key: ${{ secrets.OPENAI_KEY }}

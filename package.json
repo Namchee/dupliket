@@ -12,12 +12,12 @@
   "author": "",
   "license": "The Unlicense",
   "devDependencies": {
-    "@namchee/eslint-config": "^1.0.2",
     "@types/dedent": "^0.7.0",
     "@types/node": "^20.3.2",
     "@vercel/ncc": "^0.36.1",
     "dotenv": "^16.3.1",
     "esbuild": "^0.18.15",
+    "eslint-config-namchee": "^1.0.16",
     "husky": "^8.0.0",
     "tsx": "^3.12.7",
     "typescript": "^5.1.3",

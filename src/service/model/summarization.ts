@@ -9,7 +9,7 @@ import type { GithubIssue, GithubComment } from '@/types/github';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 import { KnowledgeInput } from '@/types/knowledge';
 
-const conversationPrompt = `Summarize the problem and solution from the following conversation in the provided format. Interaction with conversation participants will be separated by '###'.
+const conversationPrompt = `Summarize the problem and solution from the following conversation in the provided format. Interaction with conversation participants will be separated by '---'.
 
 Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.`;
 
@@ -44,9 +44,9 @@ function formatIssueToPrompt(
   return dedent`
   Title: ${issue.title}
 
-  ###
-  ${commentStr.join("\n###\n")}
-  ###
+  ---
+  ${commentStr.join("\n---\n")}
+  ---
 
   Problem:
   Solution:

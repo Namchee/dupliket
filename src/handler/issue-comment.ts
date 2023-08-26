@@ -27,6 +27,9 @@ async function handleAddKnowledgeCommand(
     const comments = await getIssueComments();
 
     knowledgeInput = await summarizeIssue(issue, comments);
+
+    // temporarily log this
+    console.log(knowledgeInput);
   }
 
   const { content, sha } = await getRepositoryContent();

@@ -27,7 +27,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
       (issue, index) => `${index + 1}. ${issue.completion}`,
     );
     const references = similarIssues.map(
-      (issue, index) => `[${index + 1}] ${issue.title} #${issue.issue_number}`,
+      issue => `- ${issue.title} #${issue.issue_number}`,
     );
 
     const outputBody = dedent`
@@ -35,7 +35,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   
     ${possibleSolutions.join('\n')}
   
-    ## References
+    ## Related Issues
   
     ${references.join('\n')}
   

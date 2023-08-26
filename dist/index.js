@@ -45,13 +45,13 @@ Conversation may have a title or a link to a reproduction attempt that can be us
     ${t.body}
     `)}async function fh(t,e){let a=mh(),r=`${DE}
 
-${UE(t,e)}`,i=await a.call(r),s=Fo.exec(i);if(s.length===3)return{prompt:s[1],completion:s[2]};throw new Error(`Failed to extract summarized knowledge from GPT. Length is ${s.length}`)}async function bh(){let t=vh.context.payload.issue,{content:e}=await mi(),a=JSON.parse(e);if(!a.length)return;let r=await hh(t),i=await R3(r,a);if(i.length){let s=i.map((p,d)=>`${d+1}. ${p.completion}`),n=i.map((p,d)=>`[${d+1}] ${p.title} #${p.issue_number}`),o=gh.default`
+${UE(t,e)}`,i=await a.call(r),s=Fo.exec(i);if(s.length===3)return{prompt:s[1],completion:s[2]};throw new Error(`Failed to extract summarized knowledge from GPT. Length is ${s.length}`)}async function bh(){let t=vh.context.payload.issue,{content:e}=await mi(),a=JSON.parse(e);if(!a.length)return;let r=await hh(t),i=await R3(r,a);if(i.length){let s=i.map((p,d)=>`${d+1}. ${p.completion}`),n=i.map(p=>`- ${p.title} #${p.issue_number}`),o=gh.default`
     ## Possible Solutions
   
     ${s.join(`
 `)}
   
-    ## References
+    ## Related Issues
   
     ${n.join(`
 `)}

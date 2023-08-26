@@ -15,5 +15,5 @@ jobs:
       - name: Summarize issue and add new knowledge
         uses: ./
         with:
-          access_token: ${{ secrets.GH_TOKEN }}
+          access_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.OPENAI_KEY }}

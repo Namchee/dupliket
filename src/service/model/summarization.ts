@@ -59,19 +59,14 @@ function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
 export async function summarizeIssueBody(issue: GithubIssue): Promise<string> {
   const llm = getLLM();
 
-  console.log(dedent`
-  ${bodyPrompt}
-
-  Title: ${issue.title}
-  Content: ${issue.body}
-  `);
-
   return llm.call(
     dedent`
     ${bodyPrompt}
 
     Title: ${issue.title}
-    Content: ${issue.body}
+    Content:
+    
+    ${issue.body}
     `,
   );
 }
@@ -101,3 +96,4 @@ export async function summarizeIssue(
     `Failed to extract summarized knowledge from GPT. Length is ${matchArr.length}`,
   );
 }
+

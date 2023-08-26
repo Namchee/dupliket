@@ -20,7 +20,7 @@ async function run(): Promise<void> {
     }
   } catch (err) {
     const error = err as Error;
-    setFailed(error.message);
+    setFailed(error);
   }
 }
 

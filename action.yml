@@ -31,7 +31,7 @@ inputs:
   similarity_threshold:
     required: false;
     description: Minimum similarity for triaging issues
-    default: 0.9
+    default: 0.85
 runs:
   using: 'node20'
   main: 'dist/index.js'

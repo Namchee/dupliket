@@ -22,24 +22,26 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   const issueSummary = await summarizeIssueBody(issue);
   const similarIssues = await getSimilarIssues(issueSummary, knowledges);
 
-  const possibleSolutions = similarIssues.map(
-    (issue, index) => `${index + 1}. ${issue.completion}`,
-  );
-  const references = similarIssues.map(
-    (issue, index) => `[${index + 1}] ${issue.title} #${issue.issue_number}`,
-  );
+  if (similarIssues.length) {
+    const possibleSolutions = similarIssues.map(
+      (issue, index) => `${index + 1}. ${issue.completion}`,
+    );
+    const references = similarIssues.map(
+      (issue, index) => `[${index + 1}] ${issue.title} #${issue.issue_number}`,
+    );
 
-  const outputBody = dedent`
-  ## Possible Solutions
+    const outputBody = dedent`
+    ## Possible Solutions
+  
+    ${possibleSolutions.join('\n')}
+  
+    ## References
+  
+    ${references.join('\n')}
+  
+    <sub>This comment is created by Halp, your friendly GitHub Action triaging bot.</sub>
+    `;
 
-  ${possibleSolutions.join('\n')}
-
-  ## References
-
-  ${references.join('\n')}
-
-  <sub>This comment is created by Halp, your friendly GitHub Action triaging bot.</sub>
-  `;
-
-  await createIssueComment(outputBody);
+    await createIssueComment(outputBody);
+  }
 }

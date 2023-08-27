@@ -1,50 +1,42 @@
 [
   {
     "issue_number": 1,
-    "title": "Conventional PR doesn't work on forked repository",
-    "prompt": "Conventional PR doesn't work on a forked repository, even though the action workflow is valid by listening to the `pull_request` event and the user is already a collaborator to the repository",
-    "completion": "Change the event target from `pull_request` to `pull_request_target` which is made specifically for forked repositories"
+    "problem": "Conventional PR doesn't work on a forked repository, even though the action workflow is valid by listening to the `pull_request` event and the user is already a collaborator to the repository",
+    "solution": "Change the event target from `pull_request` to `pull_request_target` which is made specifically for forked repositories"
   },
   {
     "issue_number": 2,
-    "title": "Conventional PR is throwing errors",
-    "prompt": "Conventional PR is throwing errors that states 'Insufficient token permissions'",
-    "completion": "Ensure that the provided token have repository access"
+    "problem": "Conventional PR is throwing errors that states 'Insufficient token permissions'",
+    "solution": "Ensure that the provided token have repository access"
   },
   {
     "issue_number": 3,
-    "title": "Conventional PR false alarm",
-    "prompt": "Conventional PR deems a pull request as valid even though it has an invalid commit message and user have already set the `title_pattern` with the desired pattern",
-    "completion": "Use `commit_pattern` configuration instead of `title_pattern` to validate commit messages."
+    "problem": "Conventional PR deems a pull request as valid even though it has an invalid commit message and user have already set the `title_pattern` with the desired pattern",
+    "solution": "Use `commit_pattern` configuration instead of `title_pattern` to validate commit messages."
   },
   {
     "issue_number": 4,
-    "title": "Conventional PR doesn't work on forked repository",
-    "prompt": "Conventional PR doesn't work on a forked repository, even though the action workflow is valid by listening to the `pull_request_target` event as suggested previously",
-    "completion": "This issue has been fixed on version 0.13. Ensure that you're using version 0.13 or later."
+    "problem": "Conventional PR doesn't work on a forked repository, even though the action workflow is valid by listening to the `pull_request_target` event as suggested previously",
+    "solution": "This issue has been fixed on version 0.13. Ensure that you're using version 0.13 or later."
   },
   {
     "issue_number": 5,
-    "title": "Listening to specific type of events",
-    "prompt": "User wants to configure Conventional PR to listen to pull request creation event only, and not on every update on the pull request",
-    "completion": "You can specify the list of events you would like to listen by adding a YAML list on the workflow definition"
+    "problem": "User wants to configure Conventional PR to listen to pull request creation event only, and not on every update on the pull request",
+    "solution": "You can specify the list of events you would like to listen by adding a YAML list on the workflow definition"
   },
   {
     "issue_number": 6,
-    "title": "Listening to specific type of events",
-    "prompt": "User wants to configure Conventional PR to listen to pull request creation event only, and not on every update on the pull request",
-    "completion": "You can specify the list of events you would like to listen by adding a YAML list on the workflow definition"
+    "problem": "User wants to configure Conventional PR to listen to pull request creation event only, and not on every update on the pull request",
+    "solution": "You can specify the list of events you would like to listen by adding a YAML list on the workflow definition"
   },
   {
     "issue_number": 7,
-    "title": "Conventional PR issue requirement bypass",
-    "prompt": "User is convinced that Conventional PR issue linking requirement feature can be bypassed by simply typing #<number> in the pull request body",
-    "completion": "This is wrong because Conventional PR use the GitHub magic keywords for issue linking if it's not directly linked by the pull request author. If GitHub API returns no linked issues, then the pull request is considered to be invalid."
+    "problem": "User is convinced that Conventional PR issue linking requirement feature can be bypassed by simply typing #<number> in the pull request body",
+    "solution": "This is wrong because Conventional PR use the GitHub magic keywords for issue linking if it's not directly linked by the pull request author. If GitHub API returns no linked issues, then the pull request is considered to be invalid."
   },
   {
     "issue_number": 8,
-    "title": "Conventional PR crash",
-    "prompt": "User is experiencing errors when using the `signed` feature.",
-    "completion": "This issue has been fixed in version 0.14. Please update the action accordingly."
+    "problem": "User is experiencing errors when using the `signed` feature.",
+    "solution": "This issue has been fixed in version 0.14. Please update the action accordingly."
   }
 ]

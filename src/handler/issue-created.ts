@@ -24,7 +24,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
 
   if (similarIssues.length) {
     const possibleSolutions = similarIssues.map(
-      (issue, index) => `${index + 1}. ${issue.completion}`,
+      (issue, index) => `${index + 1}. ${issue.solution}`,
     );
     const references = similarIssues.map(
       (issue, index) => `${index + 1}. #${issue.issue_number}`,

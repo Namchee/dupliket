@@ -5,7 +5,7 @@ import { MemoryVectorStore } from 'langchain/vectorstores/memory';
 import { OpenAIEmbeddings } from 'langchain/embeddings/openai';
 import { HuggingFaceInferenceEmbeddings } from 'langchain/embeddings/hf';
 
-import type { Knowledge, IssueData } from '@/types/knowledge';
+import type { Knowledge } from '@/types/knowledge';
 
 function getEmbeddings() {
   const apiKey = getInput('api_key');
@@ -31,7 +31,7 @@ function getEmbeddings() {
 export async function getSimilarIssues(
   issue: string,
   knowledges: Knowledge[],
-): Promise<IssueData[]> {
+): Promise<Knowledge[]> {
   const threshold = Number(getInput('similarity_threshold'));
   const numberOfIssues = Number(getInput('max_issues'));
 
@@ -39,9 +39,9 @@ export async function getSimilarIssues(
   const meta = [];
 
   for (let idx = 0; idx < knowledges.length; idx++) {
-    const { prompt, ...metadata } = knowledges[idx];
+    const { problem, ...metadata } = knowledges[idx];
 
-    texts.push(prompt);
+    texts.push(problem);
     meta.push(metadata);
   }
 
@@ -52,5 +52,5 @@ export async function getSimilarIssues(
   let result = await store.similaritySearchWithScore(issue, numberOfIssues);
   result = result.filter(document => document[1] >= threshold);
 
-  return result.map(document => document[0].metadata as IssueData);
+  return result.map(document => document[0].metadata as Knowledge);
 }

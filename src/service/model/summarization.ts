@@ -8,7 +8,7 @@ import { HuggingFaceInference } from 'langchain/llms/hf';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { KnowledgeInput } from '@/types/knowledge';
+import type { RawKnowledge } from '@/types/knowledge';
 
 const conversationPrompt = `Summarize the problem and solution from the following conversation in the provided format. Interaction with conversation participants will be separated by '---'.
 
@@ -74,7 +74,7 @@ export async function summarizeIssueBody(issue: GithubIssue): Promise<string> {
 export async function summarizeIssue(
   issue: GithubIssue,
   comments: GithubComment[],
-): Promise<KnowledgeInput> {
+): Promise<RawKnowledge> {
   const llm = getLLM();
 
   const prompt = `${conversationPrompt}\n\n${formatIssueToPrompt(
@@ -87,8 +87,8 @@ export async function summarizeIssue(
 
   if (matchArr.length === 3) {
     return {
-      prompt: matchArr[1],
-      completion: matchArr[2],
+      problem: matchArr[1],
+      solution: matchArr[2],
     };
   }
 

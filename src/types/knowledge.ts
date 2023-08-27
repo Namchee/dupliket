@@ -1,12 +1,8 @@
-export interface IssueData {
+export interface RawKnowledge {
+  problem: string;
+  solution: string;
+}
+
+export interface Knowledge extends RawKnowledge {
   issue_number: number;
-  title: string;
-  completion: string;
 }
-
-export interface KnowledgeInput {
-  prompt: string;
-  completion: string;
-}
-
-export type Knowledge = KnowledgeInput & IssueData;

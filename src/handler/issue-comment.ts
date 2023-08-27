@@ -13,7 +13,7 @@ import { summarizeIssue } from '@/service/model/summarization';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { Knowledge, KnowledgeInput } from '@/types/knowledge';
+import type { Knowledge, RawKnowledge } from '@/types/knowledge';
 
 async function handleAddKnowledgeCommand(
   issue: GithubIssue,
@@ -21,14 +21,14 @@ async function handleAddKnowledgeCommand(
 ): Promise<void> {
   const processingEmoji = await createReaction('eyes', comment.id);
 
-  let knowledgeInput: KnowledgeInput;
+  let knowledgeInput: RawKnowledge;
   const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
   if (anchorSummary?.length === 3) {
     const [_, problem, solution] = anchorSummary;
 
     knowledgeInput = {
-      prompt: problem,
-      completion: solution,
+      problem,
+      solution,
     };
   } else {
     let comments = await getIssueComments();

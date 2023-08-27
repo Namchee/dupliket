@@ -27,8 +27,8 @@ async function handleAddKnowledgeCommand(
     const [_, problem, solution] = anchorSummary;
 
     knowledgeInput = {
-      problem,
-      solution,
+      problem: problem.trim(),
+      solution: solution.trim(),
     };
   } else {
     let comments = await getIssueComments();

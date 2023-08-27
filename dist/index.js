@@ -45,7 +45,7 @@ Conversation may have a title or a link to a reproduction attempt that can be us
     ${t.body}
     `)}async function fh(t,e){let a=mh(),r=`${DE}
 
-${UE(t,e)}`,i=await a.call(r),s=Fo.exec(i);if(s.length===3)return{problem:s[1],solution:s[2]};throw new Error(`Failed to extract summarized knowledge from LLM response. Length is ${s.length}`)}async function bh(){let t=vh.context.payload.issue,{content:e}=await mi(),a=JSON.parse(e);if(!a.length)return;let r=await hh(t),i=await R3(r,a);if(i.length){let s=i.map((p,d)=>`${d+1}. ${p.solution}`),n=i.map((p,d)=>`${d+1}. #${p.issue_number}`),o=gh.default`
+${UE(t,e)}`,i=await a.call(r),s=Fo.exec(i);if(s.length===3)return{problem:s[1].trim(),solution:s[2].trim()};throw new Error(`Failed to extract summarized knowledge from LLM response. Length is ${s.length}`)}async function bh(){let t=vh.context.payload.issue,{content:e}=await mi(),a=JSON.parse(e);if(!a.length)return;let r=await hh(t),i=await R3(r,a);if(i.length){let s=i.map((p,d)=>`${d+1}. ${p.solution}`),n=i.map((p,d)=>`${d+1}. #${p.issue_number}`),o=gh.default`
     ### Possible Solutions
   
     ${s.join(`
@@ -57,7 +57,7 @@ ${UE(t,e)}`,i=await a.call(r),s=Fo.exec(i);if(s.length===3)return{problem:s[1],s
 `)}
   
     <sub>This comment is created by Halp, your friendly GitHub Action triaging bot.</sub>
-    `;await Hm(o)}}var $1=B(ui());async function LE(t,e){let a=await hi("eyes",e.id),r,i=Fo.exec(e.body);if((i==null?void 0:i.length)===3){let[o,p,d]=i;r={problem:p,solution:d}}else{let o=await Zm();o=o.filter(p=>p.user.type!=="Bot"),r=await fh(t,o),console.log(r)}let{content:s,sha:n}=await mi();await Kp(JSON.stringify([...JSON.parse(s),{issue_number:t.number,title:t.title,...r}]),n),await Promise.all([hi("+1",e.id),Wp(e.id,a.id)])}async function FE(t,e){let a=await hi("eyes",e.id),{content:r,sha:i}=await mi(),n=JSON.parse(r).filter(o=>o.issue_number!==t.number);await Kp(JSON.stringify(n),i),await Promise.all([hi("+1",e.id),Wp(e.id,a.id)])}async function yh(){let t=$1.context.payload.issue,e=$1.context.payload.comment;$m(e.user.name)&&(e.body.startsWith("/add-knowledge")?await LE(t,e):e.body.startsWith("/delete-knowledge")&&await FE(t,e))}var _h={issues:bh,issue_comment:yh};async function qE(){try{let t=xh.context.eventName;if(t in _h){let e=_h[t];await e()}}catch(t){(0,wh.setFailed)(t)}}qE();
+    `;await Hm(o)}}var $1=B(ui());async function LE(t,e){let a=await hi("eyes",e.id),r,i=Fo.exec(e.body);if((i==null?void 0:i.length)===3){let[o,p,d]=i;r={problem:p.trim(),solution:d.trim()}}else{let o=await Zm();o=o.filter(p=>p.user.type!=="Bot"),r=await fh(t,o),console.log(r)}let{content:s,sha:n}=await mi();await Kp(JSON.stringify([...JSON.parse(s),{issue_number:t.number,title:t.title,...r}]),n),await Promise.all([hi("+1",e.id),Wp(e.id,a.id)])}async function FE(t,e){let a=await hi("eyes",e.id),{content:r,sha:i}=await mi(),n=JSON.parse(r).filter(o=>o.issue_number!==t.number);await Kp(JSON.stringify(n),i),await Promise.all([hi("+1",e.id),Wp(e.id,a.id)])}async function yh(){let t=$1.context.payload.issue,e=$1.context.payload.comment;$m(e.user.name)&&(e.body.startsWith("/add-knowledge")?await LE(t,e):e.body.startsWith("/delete-knowledge")&&await FE(t,e))}var _h={issues:bh,issue_comment:yh};async function qE(){try{let t=xh.context.eventName;if(t in _h){let e=_h[t];await e()}}catch(t){(0,wh.setFailed)(t)}}qE();
 /*! Bundled license information:
 
 is-plain-object/dist/is-plain-object.js:

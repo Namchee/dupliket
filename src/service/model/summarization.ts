@@ -87,8 +87,8 @@ export async function summarizeIssue(
 
   if (matchArr.length === 3) {
     return {
-      problem: matchArr[1],
-      solution: matchArr[2],
+      problem: matchArr[1].trim(),
+      solution: matchArr[2].trim(),
     };
   }
 

@@ -93,6 +93,6 @@ export async function summarizeIssue(
   }
 
   throw new Error(
-    `Failed to extract summarized knowledge from GPT. Length is ${matchArr.length}`,
+    `Failed to extract summarized knowledge from LLM response. Length is ${matchArr.length}`,
   );
 }

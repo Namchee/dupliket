@@ -27,11 +27,11 @@ export async function handleIssueCreatedEvent(): Promise<void> {
       (issue, index) => `${index + 1}. ${issue.completion}`,
     );
     const references = similarIssues.map(
-      issue => `- ${issue.title} #${issue.issue_number}`,
+      (issue, index) => `${index + 1}. #${issue.issue_number}`,
     );
 
     const outputBody = dedent`
-    ## Possible Solutions
+    ### Possible Solutions
   
     ${possibleSolutions.join('\n')}
   

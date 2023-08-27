@@ -21,6 +21,19 @@ async function handleAddKnowledgeCommand(
 ): Promise<void> {
   const processingEmoji = await createReaction('eyes', comment.id);
 
+  const { content, sha } = await getRepositoryContent();
+  const knowledges = JSON.parse(content) as Knowledge[];
+
+  if (knowledges.find(knowledge => knowledge.issue_number === issue.number)) {
+    // Disallow duplicates
+    await Promise.all([
+      createReaction('-1', comment.id),
+      deleteReaction(comment.id, processingEmoji.id),
+    ]);
+
+    return;
+  }
+
   let knowledgeInput: RawKnowledge;
   const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
   if (anchorSummary?.length === 3) {
@@ -40,14 +53,12 @@ async function handleAddKnowledgeCommand(
     console.log(knowledgeInput);
   }
 
-  const { content, sha } = await getRepositoryContent();
 
   await updateRepositoryContent(
     JSON.stringify([
-      ...JSON.parse(content),
+      ...knowledges,
       {
         issue_number: issue.number,
-        title: issue.title,
         ...knowledgeInput,
       },
     ]),

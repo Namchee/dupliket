@@ -9,6 +9,7 @@ import {
   updateRepositoryContent,
 } from '@/service/github';
 import { summarizeIssue } from '@/service/model/summarization';
+import { logDebug } from '@/service/logger';
 
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
@@ -25,18 +26,19 @@ async function handleAddKnowledgeCommand(
   const knowledges = JSON.parse(content) as Knowledge[];
 
   if (knowledges.find(knowledge => knowledge.issue_number === issue.number)) {
-    // Disallow duplicates
     await Promise.all([
       createReaction('-1', comment.id),
       deleteReaction(comment.id, processingEmoji.id),
     ]);
 
-    return;
+    throw new Error('Duplicate knowledge found. Please remove existing knowledge with the same issue number first');
   }
 
   let knowledgeInput: RawKnowledge;
   const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
   if (anchorSummary?.length === 3) {
+    logDebug('Found user-written summary');
+
     const [_, problem, solution] = anchorSummary;
 
     knowledgeInput = {
@@ -44,13 +46,14 @@ async function handleAddKnowledgeCommand(
       solution: solution.trim(),
     };
   } else {
+    logDebug('User-written summary not found. Calling LLM to summarize');
+
     let comments = await getIssueComments();
     comments = comments.filter(comment => comment.user.type !== 'Bot');
 
     knowledgeInput = await summarizeIssue(issue, comments);
 
-    // Temporarily log this
-    console.log(knowledgeInput);
+    logDebug(`Summary by LLM: Problem: ${knowledgeInput.problem}\nSolution: ${knowledgeInput.solution}`);
   }
 
   await updateRepositoryContent(

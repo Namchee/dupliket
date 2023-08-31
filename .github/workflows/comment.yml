@@ -1,8 +1,10 @@
-name: Add new knowledge for auto-triaging
+name: Add new knowledge for auto-duplicate 
 
 on:
   issue_comment:
     types: [created]
+  issues:
+    types: [opened]
 
 jobs:
   summarize:
@@ -15,3 +17,4 @@ jobs:
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.OPENAI_KEY }}
+          debug: true

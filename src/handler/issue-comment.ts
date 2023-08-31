@@ -53,7 +53,6 @@ async function handleAddKnowledgeCommand(
     console.log(knowledgeInput);
   }
 
-
   await updateRepositoryContent(
     JSON.stringify([
       ...knowledges,

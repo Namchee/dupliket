@@ -63,7 +63,7 @@ async function handleAddKnowledgeCommand(
         issue_number: issue.number,
         ...knowledgeInput,
       },
-    ]),
+    ], null, 2),
     sha,
   );
 

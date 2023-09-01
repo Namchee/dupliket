@@ -1,5 +1,5 @@
-name: summarizr
-description: An experimental knowledge gathering bot for later projects
+name: halp
+description: Detect duplicate issues and provide answers based on previous similar issues
 author: Cristopher Namchee
 inputs:
   access_token:

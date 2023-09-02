@@ -42,11 +42,48 @@ There are 2 main features of Halp:
 
 ### Duplicate Issue Detection
 
-Ha
+Every time a new issue is created, Halp will try to find similar issue(s) that have been solved in the past. Past issues are referenced from a file store. Similarity of issues are determined by the `similarity_threshold` input.
+
+If similar issue(s) are found, Halp will create an additional comment that lists possible solutions and reference link for each similar issue(s).
+
+See [Issue #22](https://github.com/Namchee/summarizr/issues/22) for more detailed examples.
 
 ### Knowledge Gathering
 
-To detect duplicate issue from similar issues in the past
+To expand knowledge, maintainers may interact with the file store by adding a new knowledge or deleting an existing knowledge from the store. The interaction is provided in form of slash-like commands.
+
+#### Adding New Knowledge
+
+Maintainers may add a new knowledge for an issue by creating a new comment on the issue with the following format
+
+```
+/add-knowledge
+```
+
+Halp will then try to determine the problem and solution for the issue by summarizing it with LLM.
+
+Additionally, maintainers may write the problem and solution manually and include them to the base command
+
+```
+/add-knowledge
+
+Problem: <summary of the issue>
+Solution: <solution for this issue>
+```
+
+See [Issue #23](https://github.com/Namchee/summarizr/issues/23) for more detailed examples.
+
+> Maintainers may not add an issue more than once
+
+#### Removing Knowledge
+
+Maintainers may also remove knowledge related to an issue by creating a new comment on the issue with the following format
+
+```
+/delete-knowledge
+```
+
+See [Issue #23](https://github.com/Namchee/summarizr/issues/23) for more detailed examples.
 
 ## Inputs
 
@@ -67,7 +104,7 @@ You can customize this actions with these following options (fill it on `with` s
 
 
 
-## Knowledge Store
+## File Store
 
 Halp stores knowledges that are used for finding similar issues in a JSON file that is stored in `.github/issue_knowledge.json`. The knowledge are stored in the following format
 
@@ -83,4 +120,3 @@ Halp stores knowledges that are used for finding similar issues in a JSON file t
 ```
 
 > It is not recommended to edit the knowledge base manually, but can be useful when LLM summarization is off-mark.
-

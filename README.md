@@ -1,6 +1,6 @@
 # Halp
 
-Halp is a GitHub action that helps you on triaging issues on your repository by detecting possible duplicate issues and provide possible solutions for them. The solutions are based on similar issues that has been solved in the past and stored as knowledge base.
+Halp is a GitHub action that helps maintainers to triage issues efficiently by detecting possible duplicate issues and provide possible solutions for them. The solutions are based on similar issues that has been solved in the past and stored as knowledge base.
 
 It is powered by <abbr title="Large Language Model">LLM</abbr> via [LangChain](https://www.langchain.com/) to summarize issues and detect similarites from issues on the past that can be added or deleted using slash-like commands.
 
@@ -120,3 +120,7 @@ Halp stores knowledges that are used for finding similar issues in a JSON file t
 ```
 
 > It is not recommended to edit the knowledge base manually, but can be useful when LLM summarization is off-mark.
+
+## License
+
+This project is licensed under the [MIT License](./LICENSE)

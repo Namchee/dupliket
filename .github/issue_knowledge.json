@@ -33,5 +33,10 @@
     "issue_number": 8,
     "problem": "User is experiencing errors when using the `signed` feature.",
     "solution": "This issue has been fixed in version 0.14. Please update the action accordingly."
+  },
+  {
+    "issue_number": 26,
+    "problem": "The user is experiencing a false negative on a conventional PR.",
+    "solution": "The user needs to change the option from `title_pattern` to `commit_pattern` in the action workflow file. After making this change, the issue is resolved."
   }
 ]

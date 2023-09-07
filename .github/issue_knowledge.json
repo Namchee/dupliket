@@ -33,5 +33,10 @@
     "issue_number": 8,
     "problem": "User is experiencing errors when using the `signed` feature.",
     "solution": "This issue has been fixed in version 0.14. Please update the action accordingly."
+  },
+  {
+    "issue_number": 28,
+    "problem": "The conventional PR action is not correctly filtering commit messages and is allowing commit messages that should be considered invalid.",
+    "solution": "The issue stems from using the wrong option in the workflow file. The commit message pattern should be controlled by the `commit_pattern` option, not the `title_pattern`. Changing the option to `commit_pattern` should solve the issue."
   }
 ]

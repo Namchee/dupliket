@@ -27,7 +27,6 @@ function getLLM() {
       return new OpenAI({
         openAIApiKey: apiKey,
         modelName,
-        maxTokens,
       });
     case 'huggingface':
       return new HuggingFaceInference({

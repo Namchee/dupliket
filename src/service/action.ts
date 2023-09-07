@@ -3,7 +3,7 @@ import { getInput } from '@actions/core';
 export function validateInput() {
   const maxTokens = Number(getInput('max_tokens'));
   const maxIssues = Number(getInput('max_issues'));
-  const similarityThreshold = Number(getInput('similarty_threshold'));
+  const similarityThreshold = Number(getInput('similarity_threshold'));
 
   if (isNaN(maxTokens) || maxTokens <= 0) {
     throw new Error('Maximum token must be a positive number');

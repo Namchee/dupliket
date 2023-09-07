@@ -7,6 +7,7 @@ interface GithubUser {
 
 export interface GithubIssue {
   number: number;
+  user: GithubUser;
   title: string;
   body: string;
 }

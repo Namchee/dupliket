@@ -43,6 +43,9 @@ function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
   const commentStr = comments.map(
     comment => `@${comment.user.name}: ${comment.body}`,
   );
+
+  commentStr.push(`@${issue.user}: ${issue.body}`);
+
   return dedent`
   Title: ${issue.title}
 

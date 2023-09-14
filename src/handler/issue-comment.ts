@@ -46,7 +46,7 @@ async function handleAddKnowledgeCommand(
       solution: solution.trim(),
     };
   } else {
-    logDebug('User-written summary not found. Calling LLM to summarize');
+    logDebug('User-written summary not found. Calling LLM to identify the solution');
 
     let comments = await getIssueComments();
     comments = comments.filter(comment => comment.user.type !== 'Bot');

@@ -10,7 +10,7 @@ import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { RawKnowledge } from '@/types/knowledge';
 
-const conversationPrompt = `Summarize the problem and solution from the following conversation in the provided format. Include the root cause in the problem summary. Interaction with conversation participants will be separated by '---'.
+const conversationPrompt = `Identify the solution from the following problem-solution conversation. Conversation between participants will be separated by '---'.
 
 Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.`;
 
@@ -53,7 +53,6 @@ function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
   ${commentStr.join('\n---\n')}
   ---
 
-  Problem:
   Solution:
   `;
 }
@@ -87,10 +86,10 @@ export async function summarizeIssue(
   const completion = await llm.call(prompt);
   const matchArr = ADD_KNOWLEDGE_PATTERN.exec(completion) as RegExpExecArray;
 
-  if (matchArr.length === 3) {
+  if (matchArr.length === 2) {
     return {
-      problem: matchArr[1].trim(),
-      solution: matchArr[2].trim(),
+      problem: issue.body,
+      solution: matchArr[1].trim(),
     };
   }
 

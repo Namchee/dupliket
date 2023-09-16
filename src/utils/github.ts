@@ -1,5 +1,6 @@
-import { getInput } from '@actions/core';
 import { getOctokit as newOctokit, context } from '@actions/github';
+
+import { getActionInput } from '@/utils/action';
 
 import type {
   GithubError,
@@ -12,8 +13,9 @@ import type {
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
 
 function getOctokit() {
-  const token = getInput('access_token');
-  return newOctokit(token);
+  const { accessToken } = getActionInput();
+
+  return newOctokit(accessToken);
 }
 
 export async function getRepositoryContent(): Promise<RepositoryFile> {
@@ -125,8 +127,8 @@ export async function createIssueComment(body: string): Promise<void> {
 }
 
 export async function createReaction(
-  reaction: Reaction,
   commentID: number,
+  reaction: Reaction,
 ): Promise<GithubReaction> {
   const octokit = getOctokit();
 

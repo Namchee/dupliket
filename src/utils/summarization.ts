@@ -1,45 +1,44 @@
-import { getInput } from '@actions/core';
-
 import dedent from 'dedent';
 
 import { OpenAI } from 'langchain/llms/openai';
 import { HuggingFaceInference } from 'langchain/llms/hf';
+
+import { getActionInput } from '@/utils/action';
+
+import { InputException } from '@/exceptions/input';
 
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { RawKnowledge } from '@/types/knowledge';
 
-const conversationPrompt = `Identify the problem solution from the following problem-solution conversation in a form of suggestion. Conversation between participants will be separated by '---'.
+const conversationPrompt = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Conversation between participants will be separated by '---'.
 
 Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.`;
 
 const bodyPrompt = `Summarize the following article. The article may have a title or a link to a reproduction attempt that can be used to understand the context. Emphasize the problems that can be found in the article.`;
 
 function getLLM() {
-  const apiKey = getInput('api_key');
-  const provider = getInput('model_provider');
-  const modelName = getInput('summarization_model');
-  const maxTokens = Number(getInput('max_tokens'));
-  const temperature = Number(getInput('temperature'));
+  const { apiKey, modelProvider, model, maxTokens, temperature } =
+    getActionInput();
 
-  switch (provider) {
+  switch (modelProvider) {
     case 'openai':
       return new OpenAI({
         openAIApiKey: apiKey,
-        modelName,
+        modelName: model,
         maxTokens,
         temperature,
       });
     case 'huggingface':
       return new HuggingFaceInference({
         apiKey,
-        model: modelName,
+        model,
         maxTokens,
         temperature,
       });
     default:
-      throw new Error('Unsupported model provider.');
+      throw new InputException('model_provider', 'Unsupported model provider.');
   }
 }
 

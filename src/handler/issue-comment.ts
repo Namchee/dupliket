@@ -7,9 +7,11 @@ import {
   getRepositoryContent,
   hasWriteAccess,
   updateRepositoryContent,
-} from '@/service/github';
-import { summarizeIssue } from '@/service/model/summarization';
-import { logDebug } from '@/service/logger';
+} from '@/utils/github';
+import { summarizeIssue } from '@/utils/summarization';
+import { logDebug } from '@/utils/logger';
+
+import { StorageException } from '@/exceptions/storage';
 
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
@@ -20,18 +22,20 @@ async function handleAddKnowledgeCommand(
   issue: GithubIssue,
   comment: GithubComment,
 ): Promise<void> {
-  const processingEmoji = await createReaction('eyes', comment.id);
+  const processingEmoji = await createReaction(comment.id, 'eyes');
 
   const { content, sha } = await getRepositoryContent();
   const knowledges = JSON.parse(content) as Knowledge[];
 
   if (knowledges.find(knowledge => knowledge.issue_number === issue.number)) {
     await Promise.all([
-      createReaction('-1', comment.id),
+      createReaction(comment.id, '-1'),
       deleteReaction(comment.id, processingEmoji.id),
     ]);
 
-    throw new Error('Duplicate knowledge found. Please remove existing knowledge with the same issue number first');
+    throw new StorageException(
+      'Duplicate knowledge found. Please remove existing knowledge with the same issue number first',
+    );
   }
 
   let knowledgeInput: RawKnowledge;
@@ -46,29 +50,37 @@ async function handleAddKnowledgeCommand(
       solution: solution.trim(),
     };
   } else {
-    logDebug('User-written summary not found. Calling LLM to identify the solution');
+    logDebug(
+      'User-written summary not found. Calling LLM to identify the solution',
+    );
 
     let comments = await getIssueComments();
     comments = comments.filter(comment => comment.user.type !== 'Bot');
 
     knowledgeInput = await summarizeIssue(issue, comments);
 
-    logDebug(`Summary by LLM: Problem: ${knowledgeInput.problem}\nSolution: ${knowledgeInput.solution}`);
+    logDebug(
+      `Summary by LLM: Problem: ${knowledgeInput.problem}\nSolution: ${knowledgeInput.solution}`,
+    );
   }
 
   await updateRepositoryContent(
-    JSON.stringify([
-      ...knowledges,
-      {
-        issue_number: issue.number,
-        ...knowledgeInput,
-      },
-    ], null, 2),
+    JSON.stringify(
+      [
+        ...knowledges,
+        {
+          issue_number: issue.number,
+          ...knowledgeInput,
+        },
+      ],
+      null,
+      2,
+    ),
     sha,
   );
 
   await Promise.all([
-    createReaction('+1', comment.id),
+    createReaction(comment.id, '+1'),
     deleteReaction(comment.id, processingEmoji.id),
   ]);
 }
@@ -77,7 +89,7 @@ async function handleDeleteKnowledgeCommand(
   issue: GithubIssue,
   comment: GithubComment,
 ): Promise<void> {
-  const processingEmoji = await createReaction('eyes', comment.id);
+  const processingEmoji = await createReaction(comment.id, 'eyes');
 
   const { content, sha } = await getRepositoryContent();
   const knowlegdes = JSON.parse(content) as Knowledge[];
@@ -89,7 +101,7 @@ async function handleDeleteKnowledgeCommand(
   await updateRepositoryContent(JSON.stringify(newKnowledges), sha);
 
   await Promise.all([
-    createReaction('+1', comment.id),
+    createReaction(comment.id, '+1'),
     deleteReaction(comment.id, processingEmoji.id),
   ]);
 }

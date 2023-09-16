@@ -2,11 +2,11 @@ import { context } from '@actions/github';
 
 import dedent from 'dedent';
 
-import { createIssueComment, getRepositoryContent } from '@/service/github';
+import { createIssueComment, getRepositoryContent } from '@/utils/github';
 
-import { getSimilarIssues } from '@/service/model/similarity';
-import { summarizeIssueBody } from '@/service/model/summarization';
-import { logDebug } from '@/service/logger';
+import { getSimilarIssues } from '@/utils/similarity';
+import { summarizeIssueBody } from '@/utils/summarization';
+import { logDebug } from '@/utils/logger';
 
 import type { GithubIssue } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';

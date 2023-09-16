@@ -7,16 +7,13 @@ import { getActionInput } from '@/utils/action';
 
 import { InputException } from '@/exceptions/input';
 
-import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
-
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { RawKnowledge } from '@/types/knowledge';
+import { sanitizeMarkdown } from './markdown';
 
 const conversationPrompt = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Conversation between participants will be separated by '---'.
 
 Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.`;
-
-const bodyPrompt = `Summarize the following article. The article may have a title or a link to a reproduction attempt that can be used to understand the context. Emphasize the problems that can be found in the article.`;
 
 function getLLM() {
   const { apiKey, modelProvider, model, maxTokens, temperature } =
@@ -60,22 +57,7 @@ function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
   `;
 }
 
-export async function summarizeIssueBody(issue: GithubIssue): Promise<string> {
-  const llm = getLLM();
-
-  return llm.call(
-    dedent`
-    ${bodyPrompt}
-
-    Title: ${issue.title}
-    Content:
-    
-    ${issue.body}
-    `,
-  );
-}
-
-export async function summarizeIssue(
+export async function extractSolution(
   issue: GithubIssue,
   comments: GithubComment[],
 ): Promise<RawKnowledge> {
@@ -86,17 +68,17 @@ export async function summarizeIssue(
     comments,
   )}`;
 
-  const completion = await llm.call(prompt);
-  const matchArr = ADD_KNOWLEDGE_PATTERN.exec(completion) as RegExpExecArray;
-
-  if (matchArr && matchArr.length === 3) {
-    return {
-      problem: issue.body,
-      solution: matchArr[1].trim(),
-    };
+  let completion = await llm.call(prompt);
+  if (completion.startsWith('Solution:')) {
+    completion = completion.replace('Solution:', '');
   }
 
-  throw new Error(
-    `Failed to extract summarized knowledge from LLM response. Length is ${matchArr.length}`,
+  const problem = sanitizeMarkdown(
+    `Title: ${issue.title}\nBody: ${issue.body}`,
   );
+
+  return {
+    problem,
+    solution: completion.trim(),
+  };
 }

@@ -5,7 +5,6 @@ import dedent from 'dedent';
 import { createIssueComment, getRepositoryContent } from '@/utils/github';
 
 import { getSimilarIssues } from '@/utils/similarity';
-import { summarizeIssueBody } from '@/utils/summarization';
 import { logDebug } from '@/utils/logger';
 
 import type { GithubIssue } from '@/types/github';
@@ -22,8 +21,8 @@ export async function handleIssueCreatedEvent(): Promise<void> {
     return;
   }
 
-  const issueSummary = await summarizeIssueBody(issue);
-  const similarIssues = await getSimilarIssues(issueSummary, knowledges);
+  const issueText = `Title: ${issue.title}\nBody: ${issue.body}`;
+  const similarIssues = await getSimilarIssues(issueText, knowledges);
 
   logDebug(`Found ${similarIssues.length} similar issue(s)`);
 
@@ -36,7 +35,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
     );
 
     const outputBody = dedent`
-    ### Possible Solutions
+    ## Possible Solutions
   
     ${possibleSolutions.join('\n')}
   

@@ -8,7 +8,7 @@ import {
   hasWriteAccess,
   updateRepositoryContent,
 } from '@/utils/github';
-import { summarizeIssue } from '@/utils/summarization';
+import { extractSolution } from '@/utils/extraction';
 import { logDebug } from '@/utils/logger';
 
 import { StorageException } from '@/exceptions/storage';
@@ -57,7 +57,7 @@ async function handleAddKnowledgeCommand(
     let comments = await getIssueComments();
     comments = comments.filter(comment => comment.user.type !== 'Bot');
 
-    knowledgeInput = await summarizeIssue(issue, comments);
+    knowledgeInput = await extractSolution(issue, comments);
 
     logDebug(
       `Summary by LLM: Problem: ${knowledgeInput.problem}\nSolution: ${knowledgeInput.solution}`,

@@ -33,10 +33,5 @@
     "issue_number": 8,
     "problem": "User is experiencing errors when using the `signed` feature.",
     "solution": "This issue has been fixed in version 0.14. Please update the action accordingly."
-  },
-  {
-    "issue_number": 30,
-    "problem": "The Conventional PR tool is not correctly filtering commit messages according to the defined regex pattern.",
-    "solution": "The user was using the wrong option in the workflow file. They should use the `commit_pattern` option instead of the `title_pattern` option to control the commit message."
   }
 ]

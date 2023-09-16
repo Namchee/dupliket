@@ -22,6 +22,7 @@ function getEmbeddings() {
       return new HuggingFaceInferenceEmbeddings({
         apiKey,
         model,
+
       });
     default:
       throw new Error('Unsupported model provider.');

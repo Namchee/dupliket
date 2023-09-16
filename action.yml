@@ -12,14 +12,18 @@ inputs:
     required: false
     description: Model provider
     default: openai
-  summarization_model:
+  model:
     required: false
-    description: Model to be used for summarization
+    description: Model to be used for identifying solutions from existing issues
     default: gpt-3.5-turbo
   embedding_model:
     required: false
-    description: Model to be used for text embeddings
+    description: Model to be used for text embeddings when searching for similar issues
     default: text-embedding-ada-002
+  temperature:
+    required: false
+    description: Randomness of the generated solution
+    default: 0.5
   max_tokens:
     required: false
     description: Maximum tokens for summarization
@@ -30,7 +34,7 @@ inputs:
     default: 3
   similarity_threshold:
     required: false
-    description: Minimum similarity for triaging issues
+    description: Minimum similarity for issues to be considered as similar
     default: 0.85
   debug:
     required: false

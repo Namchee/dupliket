@@ -10,7 +10,7 @@ import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { RawKnowledge } from '@/types/knowledge';
 
-const conversationPrompt = `Identify the solution from the following problem-solution conversation. Conversation between participants will be separated by '---'.
+const conversationPrompt = `Identify the problem solution from the following problem-solution conversation in a form of suggestion. Conversation between participants will be separated by '---'.
 
 Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.`;
 
@@ -21,18 +21,22 @@ function getLLM() {
   const provider = getInput('model_provider');
   const modelName = getInput('summarization_model');
   const maxTokens = Number(getInput('max_tokens'));
+  const temperature = Number(getInput('temperature'));
 
   switch (provider) {
     case 'openai':
       return new OpenAI({
         openAIApiKey: apiKey,
         modelName,
+        maxTokens,
+        temperature,
       });
     case 'huggingface':
       return new HuggingFaceInference({
         apiKey,
         model: modelName,
         maxTokens,
+        temperature,
       });
     default:
       throw new Error('Unsupported model provider.');
@@ -86,7 +90,7 @@ export async function summarizeIssue(
   const completion = await llm.call(prompt);
   const matchArr = ADD_KNOWLEDGE_PATTERN.exec(completion) as RegExpExecArray;
 
-  if (matchArr.length === 2) {
+  if (matchArr && matchArr.length === 3) {
     return {
       problem: issue.body,
       solution: matchArr[1].trim(),

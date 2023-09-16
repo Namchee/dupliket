@@ -57,7 +57,7 @@ function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
   `;
 }
 
-export async function extractSolution(
+export async function summarizeIssue(
   issue: GithubIssue,
   comments: GithubComment[],
 ): Promise<RawKnowledge> {

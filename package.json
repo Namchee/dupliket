@@ -4,7 +4,7 @@
   "description": "Your friendly issue triaging action",
   "main": "dist/index.js",
   "scripts": {
-    "build": "rm -rf dist && esbuild src/main.ts --outfile=dist/index.js --bundle --platform=node --target=node16 --minify --sourcemap",
+    "build": "rm -rf dist && bun build src/main.ts --target=node --outdir=./dist --minify",
     "lint": "eslint src/**",
     "lint:fix": "eslint src/** --fix",
     "prepare": "husky install"
@@ -17,8 +17,6 @@
     "@types/node": "^20.3.2",
     "@typescript-eslint/eslint-plugin": "5.61.0",
     "@typescript-eslint/parser": "5.61.0",
-    "dotenv": "^16.3.1",
-    "esbuild": "^0.18.15",
     "eslint": "^8.48.0",
     "eslint-config-namchee": "^1.0.18",
     "eslint-config-prettier": "^9.0.0",
@@ -27,7 +25,6 @@
     "husky": "^8.0.0",
     "prettier": "^3.0.2",
     "prettier-eslint": "^15.0.1",
-    "tsx": "^3.12.7",
     "typescript": "^5.1.6"
   },
   "dependencies": {

@@ -9,7 +9,7 @@ let input: Input;
 export function getActionInput(): Input {
   if (!input) {
     const accessToken = getInput('access_token');
-    const apiKey = getInput('apiKey');
+    const apiKey = getInput('api_key');
     const modelProvider = getInput('model_provider');
     const model = getInput('model');
     const embeddingModel = getInput('embedding_model');

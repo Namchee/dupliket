@@ -43,7 +43,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   
     ${references.join('\n')}
   
-    <sub>This comment is created by Halp, your friendly GitHub Action triaging bot.</sub>
+    <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
     `;
 
     await createIssueComment(outputBody);

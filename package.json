@@ -15,8 +15,8 @@
   "devDependencies": {
     "@types/dedent": "^0.7.0",
     "@types/node": "^20.3.2",
-    "@typescript-eslint/eslint-plugin": "5.61.0",
-    "@typescript-eslint/parser": "5.61.0",
+    "@typescript-eslint/eslint-plugin": "^5.61.0",
+    "@typescript-eslint/parser": "^5.61.0",
     "eslint": "^8.48.0",
     "eslint-config-namchee": "^1.0.18",
     "eslint-config-prettier": "^9.0.0",
@@ -25,7 +25,7 @@
     "husky": "^8.0.0",
     "prettier": "^3.0.2",
     "prettier-eslint": "^15.0.1",
-    "typescript": "^5.1.6"
+    "typescript": "5.1.6"
   },
   "dependencies": {
     "@actions/core": "^1.10.0",

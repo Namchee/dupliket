@@ -18,12 +18,11 @@ You can integrate Duplikat in your GitHub workflow by creating a new [workflow f
 name: Run duplikat
 
 on:
-  # To modify knowledge base
-  issue_comment:
-    types: [created]
-  # To detect duplicate issues
   issues:
-    types: [opened]
+    types: [
+      opened, # To detect duplicate issues
+      closed # To interact with the knowledge base
+    ]
 
 jobs:
   summarize:

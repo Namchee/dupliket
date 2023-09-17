@@ -1,8 +1,6 @@
-name: Add new knowledge for auto-duplicate 
+name: Detect possible duplicated issue
 
 on:
-  issue_comment:
-    types: [created]
   issues:
     types: [opened]
 

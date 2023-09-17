@@ -3,9 +3,8 @@
   "version": "1.0.0",
   "description": "Your friendly issue triaging action",
   "main": "dist/main.js",
-  "type": "module",
   "scripts": {
-    "build": "rm -rf dist && bun build src/main.ts --target=node --outdir=./dist --minify",
+    "build": "rm -rf dist && esbuild src/main.ts --outfile=dist/main.js --bundle --platform=node --target=node20 --minify --sourcemap",
     "lint": "eslint src/**",
     "lint:fix": "eslint src/** --fix",
     "prepare": "husky install"

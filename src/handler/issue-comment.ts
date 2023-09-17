@@ -10,6 +10,7 @@ import {
 } from '@/utils/github';
 import { summarizeIssue } from '@/utils/summarization';
 import { logDebug } from '@/utils/logger';
+import { filterRelevantComments } from '@/utils/comment';
 
 import { StorageException } from '@/exceptions/storage';
 
@@ -54,8 +55,8 @@ async function handleAddKnowledgeCommand(
       'User-written summary not found. Calling LLM to identify the solution',
     );
 
-    let comments = await getIssueComments();
-    comments = comments.filter(comment => comment.user.type !== 'Bot');
+    const allComments = await getIssueComments();
+    const comments = filterRelevantComments(allComments);
 
     knowledgeInput = await summarizeIssue(issue, comments);
 

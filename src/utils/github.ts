@@ -70,7 +70,7 @@ export async function updateRepositoryContent(
     repo,
     path: KNOWLEDGE_PATH,
     content: Buffer.from(content).toString('base64'),
-    message: 'chore(halp): update knowledge',
+    message: 'chore(duplikat): update knowledge',
     sha: '',
   };
 

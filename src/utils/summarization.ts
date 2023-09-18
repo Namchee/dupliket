@@ -4,16 +4,18 @@ import { OpenAI } from 'langchain/llms/openai';
 import { HuggingFaceInference } from 'langchain/llms/hf';
 
 import { getActionInput } from '@/utils/action';
+import { sanitizeMarkdown } from '@/utils/markdown';
 
 import { InputException } from '@/exceptions/input';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { RawKnowledge } from '@/types/knowledge';
-import { sanitizeMarkdown } from './markdown';
 
-const conversationPrompt = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Conversation between participants will be separated by '---'.
+const conversationPrompt = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Interaction between conversation participants will be separated by '---'.  
 
-Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.`;
+Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
+
+If no solutions in the conversation are found, reply with \`Not Found\`.`;
 
 function getLLM() {
   const { apiKey, modelProvider, model, maxTokens, temperature } =

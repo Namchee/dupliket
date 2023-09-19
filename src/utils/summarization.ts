@@ -75,12 +75,11 @@ export async function summarizeIssue(
     completion = completion.replace('Solution:', '');
   }
 
-  const problem = sanitizeMarkdown(
-    `Title: ${issue.title}\nBody: ${issue.body}`,
-  );
+  const title = sanitizeMarkdown(issue.title);
+  const body = sanitizeMarkdown(issue.body);
 
   return {
-    problem,
+    problem: `Title: ${title}\nBody: ${body}`,
     solution: completion.trim(),
   };
 }

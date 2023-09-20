@@ -23,7 +23,7 @@ inputs:
   temperature:
     required: false
     description: Randomness of the generated solution
-    default: 0.5
+    default: 0.25
   max_tokens:
     required: false
     description: Maximum tokens for summarization

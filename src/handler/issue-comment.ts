@@ -11,11 +11,12 @@ import {
   updateRepositoryContent,
 } from '@/utils/github';
 import { summarizeIssue } from '@/utils/summarization';
-import { logDebug } from '@/utils/logger';
 import { filterRelevantComments } from '@/utils/comment';
+import { logDebug } from '@/utils/logger';
 
 import { StorageException } from '@/exceptions/storage';
 
+import { ADD_COMMAND, DELETE_COMMAND } from '@/constant/command';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
@@ -27,68 +28,68 @@ async function handleAddKnowledgeCommand(
 ): Promise<void> {
   const processingEmoji = await createReaction(comment.id, 'eyes');
 
-  const { content, sha } = await getRepositoryContent();
-  const knowledges = JSON.parse(content) as Knowledge[];
+  try {
+    const { content, sha } = await getRepositoryContent();
+    const knowledges = JSON.parse(content) as Knowledge[];
 
-  if (knowledges.find(knowledge => knowledge.issue_number === issue.number)) {
-    await Promise.all([
-      createReaction(comment.id, '-1'),
-      deleteReaction(comment.id, processingEmoji.id),
-    ]);
+    if (knowledges.find(knowledge => knowledge.issue_number === issue.number)) {
+      throw new StorageException(
+        `Duplicate knowledge for issue ${issue.number}. Please remove existing knowledge first.`,
+      );
+    }
 
-    throw new StorageException(
-      `Duplicate knowledge for issue ${issue.number}. Please remove existing knowledge first.`,
+    let knowledgeInput: RawKnowledge;
+    const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
+    if (anchorSummary?.length === 3) {
+      logDebug('Found user-written summary');
+
+      const [_, problem, solution] = anchorSummary;
+
+      knowledgeInput = {
+        title: issue.title.trim(),
+        problem: problem.trim(),
+        solution: solution.trim(),
+      };
+    } else {
+      logDebug(
+        'User-written summary not found. Calling LLM to identify the solution',
+      );
+
+      const allComments = await getIssueComments();
+      const comments = filterRelevantComments(allComments);
+
+      knowledgeInput = await summarizeIssue(issue, comments);
+
+      logDebug(dedent`LLM Result:
+        Title: ${knowledgeInput.title}
+        Problem: ${knowledgeInput.problem}
+        Solution: ${knowledgeInput.solution}
+      `);
+    }
+
+    await updateRepositoryContent(
+      JSON.stringify(
+        [
+          ...knowledges,
+          {
+            issue_number: issue.number,
+            ...knowledgeInput,
+          },
+        ],
+        null,
+        2,
+      ),
+      sha,
     );
+
+    await createReaction(comment.id, '+1');
+  } catch (err) {
+    await createReaction(comment.id, '-1');
+
+    throw err;
+  } finally {
+    await deleteReaction(comment.id, processingEmoji.id);
   }
-
-  let knowledgeInput: RawKnowledge;
-  const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
-  if (anchorSummary?.length === 3) {
-    logDebug('Found user-written summary');
-
-    const [_, problem, solution] = anchorSummary;
-
-    knowledgeInput = {
-      title: issue.title.trim(),
-      problem: problem.trim(),
-      solution: solution.trim(),
-    };
-  } else {
-    logDebug(
-      'User-written summary not found. Calling LLM to identify the solution',
-    );
-
-    const allComments = await getIssueComments();
-    const comments = filterRelevantComments(allComments);
-
-    knowledgeInput = await summarizeIssue(issue, comments);
-
-    logDebug(dedent`LLM Result:
-      Title: ${knowledgeInput.title}
-      Problem: ${knowledgeInput.problem}
-      Solution: ${knowledgeInput.solution}
-    `);
-  }
-
-  await updateRepositoryContent(
-    JSON.stringify(
-      [
-        ...knowledges,
-        {
-          issue_number: issue.number,
-          ...knowledgeInput,
-        },
-      ],
-      null,
-      2,
-    ),
-    sha,
-  );
-
-  await Promise.all([
-    createReaction(comment.id, '+1'),
-    deleteReaction(comment.id, processingEmoji.id),
-  ]);
 }
 
 async function handleDeleteKnowledgeCommand(
@@ -120,9 +121,9 @@ export async function handleIssueCommentEvent(): Promise<void> {
     return;
   }
 
-  if (comment.body.startsWith('/add-knowledge')) {
+  if (comment.body.startsWith(ADD_COMMAND)) {
     await handleAddKnowledgeCommand(issue, comment);
-  } else if (comment.body.startsWith('/delete-knowledge')) {
+  } else if (comment.body.startsWith(DELETE_COMMAND)) {
     await handleDeleteKnowledgeCommand(issue, comment);
   }
 }

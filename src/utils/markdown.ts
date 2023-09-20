@@ -6,7 +6,7 @@ import githubFlavoredMarkdown from 'remark-gfm';
 export function sanitizeMarkdown(text: string): string {
   return remark()
     .use(githubFlavoredMarkdown)
-    .use(stripMarkdown, { keep: ['inlineCode', 'code'] })
+    .use(stripMarkdown)
     .processSync(text)
     .toString();
 }

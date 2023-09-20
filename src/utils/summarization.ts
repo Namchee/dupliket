@@ -79,7 +79,8 @@ export async function summarizeIssue(
   const body = sanitizeMarkdown(issue.body);
 
   return {
-    problem: `Title: ${title}\nBody: ${body}`.trim(),
+    title: title.trim(),
+    problem: body.trim(),
     solution: completion.trim(),
   };
 }

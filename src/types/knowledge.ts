@@ -1,4 +1,5 @@
 export interface RawKnowledge {
+  title: string;
   problem: string;
   solution: string;
 }

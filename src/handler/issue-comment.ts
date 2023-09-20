@@ -1,5 +1,7 @@
 import { context } from '@actions/github';
 
+import dedent from 'dedent';
+
 import {
   createReaction,
   deleteReaction,
@@ -35,7 +37,7 @@ async function handleAddKnowledgeCommand(
     ]);
 
     throw new StorageException(
-      'Duplicate knowledge found. Please remove existing knowledge with the same issue number first',
+      `Duplicate knowledge for issue ${issue.number}. Please remove existing knowledge first.`,
     );
   }
 
@@ -47,6 +49,7 @@ async function handleAddKnowledgeCommand(
     const [_, problem, solution] = anchorSummary;
 
     knowledgeInput = {
+      title: issue.title.trim(),
       problem: problem.trim(),
       solution: solution.trim(),
     };
@@ -60,9 +63,11 @@ async function handleAddKnowledgeCommand(
 
     knowledgeInput = await summarizeIssue(issue, comments);
 
-    logDebug(
-      `Summary by LLM: Problem: ${knowledgeInput.problem}\nSolution: ${knowledgeInput.solution}`,
-    );
+    logDebug(dedent`LLM Result:
+      Title: ${knowledgeInput.title}
+      Problem: ${knowledgeInput.problem}
+      Solution: ${knowledgeInput.solution}
+    `);
   }
 
   await updateRepositoryContent(

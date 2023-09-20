@@ -38,9 +38,9 @@ export async function getSimilarIssues(
   const meta = [];
 
   for (let idx = 0; idx < knowledges.length; idx++) {
-    const { problem, ...metadata } = knowledges[idx];
+    const { title, problem, ...metadata } = knowledges[idx];
 
-    texts.push(problem);
+    texts.push(`Title: ${title}\nBody: ${problem}`);
     meta.push(metadata);
   }
 

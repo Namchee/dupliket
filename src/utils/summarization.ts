@@ -7,11 +7,14 @@ import { getActionInput } from '@/utils/action';
 import { sanitizeMarkdown } from '@/utils/markdown';
 
 import { InputException } from '@/exceptions/input';
+import { ModelException } from '@/exceptions/model';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { RawKnowledge } from '@/types/knowledge';
 
-const conversationPrompt = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Interaction between conversation participants will be separated by '---'.  
+const conversationPrompt = `Identify the solution from the following problem-solution conversation.
+
+Present the solution in form of simple suggestion. Interaction between conversation participants will be separated by '---'.  
 
 Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
@@ -73,6 +76,10 @@ export async function summarizeIssue(
   let completion = await llm.call(prompt);
   if (completion.startsWith('Solution:')) {
     completion = completion.replace('Solution:', '');
+  }
+
+  if (completion.startsWith('Not Found')) {
+    throw new ModelException('Issue solution not found');
   }
 
   const title = sanitizeMarkdown(issue.title);

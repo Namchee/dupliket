@@ -17,6 +17,7 @@
     "@types/node": "^20.3.2",
     "@typescript-eslint/eslint-plugin": "^5.61.0",
     "@typescript-eslint/parser": "^5.61.0",
+    "bun-types": "^1.0.2",
     "esbuild": "^0.19.3",
     "eslint": "^8.48.0",
     "eslint-config-namchee": "^1.0.18",

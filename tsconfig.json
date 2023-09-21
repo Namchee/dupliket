@@ -10,6 +10,7 @@
     "baseUrl": ".",
     "moduleResolution": "node",
     "resolveJsonModule": true,
+    "types": ["bun-types"],
     "paths": {
       "@/*": ["src/*"],
     }

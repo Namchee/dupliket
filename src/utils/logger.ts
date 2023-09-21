@@ -1,11 +1,13 @@
-import { getInput } from '@actions/core';
+import { debug as writeLog } from '@actions/core';
+
+import { getActionInput } from '@/utils/action';
 
 export function logDebug(message: string) {
-  const isDebugging = Boolean(getInput('debug'));
+  const { debug } = getActionInput();
 
-  if (!isDebugging) {
+  if (!debug) {
     return;
   }
 
-  console.log(`[DEBUG] ${message}`);
+  writeLog(`[Debug] ${message}`);
 }

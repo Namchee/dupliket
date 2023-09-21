@@ -19,14 +19,14 @@ name: Run duplikat
 
 on:
   issues:
-    types: [
-      opened, # To detect duplicate issues
-      closed # To interact with the knowledge base
-    ]
+    types: [opened] # To detect duplicate issues when it's opened
+  issue_comment:
+    types: [created] # To interact with the knowledge base
 
 jobs:
   summarize:
     runs-on: ubuntu-latest
+    if: ${{ !github.event.issue.pull_request }} # Only runs on issues
     steps:
       - name: Summarize issue and add new knowledge
         uses: Namchee/duplikat@<version>

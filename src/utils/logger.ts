@@ -1,4 +1,4 @@
-import { debug as writeLog } from '@actions/core';
+import { info } from '@actions/core';
 
 import { getActionInput } from '@/utils/action';
 
@@ -9,5 +9,5 @@ export function logDebug(message: string) {
     return;
   }
 
-  writeLog(`[Debug] ${message}`);
+  info(`[Debug] ${message}`);
 }

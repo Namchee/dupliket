@@ -18,7 +18,7 @@ Present the solution in form of simple suggestion. Interaction between conversat
 
 Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
-If no solutions in the conversation are found, reply with \`Not Found\`.`;
+If no solution can be found, reply with \`Not Found\`.`;
 
 function getLLM() {
   const { apiKey, modelProvider, model, maxTokens, temperature } =
@@ -57,8 +57,6 @@ function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
   ---
   ${commentStr.join('\n---\n')}
   ---
-
-  Solution:
   `;
 }
 

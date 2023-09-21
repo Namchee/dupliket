@@ -81,7 +81,7 @@ Present the solution in form of simple suggestion. Interaction between conversat
 
 Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
-If no solutions in the conversation are found, reply with \`Not Found\`.`;function qD(){let{apiKey:t,modelProvider:e,model:r,maxTokens:a,temperature:n}=_r();switch(e){case"openai":return new Xn({openAIApiKey:t,modelName:r,maxTokens:a,temperature:n});case"huggingface":return new il({apiKey:t,model:r,maxTokens:a,temperature:n});default:throw new Gt("model_provider","Unsupported model provider.")}}function VD(t,e){let r=e.map(a=>`@${a.user.name}: ${a.body}`);return r.push(`@${t.user}: ${t.body}`),Vg.default`
+If no solution can be found, reply with \`Not Found\`.`;function qD(){let{apiKey:t,modelProvider:e,model:r,maxTokens:a,temperature:n}=_r();switch(e){case"openai":return new Xn({openAIApiKey:t,modelName:r,maxTokens:a,temperature:n});case"huggingface":return new il({apiKey:t,model:r,maxTokens:a,temperature:n});default:throw new Gt("model_provider","Unsupported model provider.")}}function VD(t,e){let r=e.map(a=>`@${a.user.name}: ${a.body}`);return r.push(`@${t.user}: ${t.body}`),Vg.default`
   Title: ${t.title}
 
   ---
@@ -89,8 +89,6 @@ If no solutions in the conversation are found, reply with \`Not Found\`.`;functi
 ---
 `)}
   ---
-
-  Solution:
   `}async function Mg(t,e){let r=qD(),a=`${LD}
 
 ${VD(t,e)}`,n=await r.call(a);if(n.startsWith("Solution:")&&(n=n.replace("Solution:","")),n.startsWith("Not Found"))throw new Nl("Issue solution not found");let i=u2(t.title),s=u2(t.body);return{title:i.trim(),problem:s.trim(),solution:n.trim()}}var Fl="/add-knowledge",Ll="/delete-knowledge";function Ug(t){let e=[];for(let r of t){let a=r.user.type==="Bot",n=r.body.startsWith(Fl)||r.body.startsWith(Ll);!a&&!n&&e.push(r)}return e}var ql=class extends Error{constructor(e){super(`[Storage] ${e}`)}};var Bg=/Problems?:\n{0,2}([\s\S]+)Solutions?:\n{0,2}?([\s\S]+)/ig;async function MD(t,e){let r=await gn(e.id,"eyes");try{let{content:a,sha:n}=await Ai(),i=JSON.parse(a);if(i.find(p=>p.issue_number===t.number))throw new ql(`Duplicate knowledge for issue ${t.number}. Please remove existing knowledge first.`);let s,o=Bg.exec(e.body);if(o?.length===3){_a("Found user-written summary");let[p,l,u]=o;s={title:t.title.trim(),problem:l.trim(),solution:u.trim()}}else{_a("User-written summary not found. Calling LLM to identify the solution");let p=await mh(),l=Ug(p);s=await Mg(t,l),_a(zg.default`LLM Result:

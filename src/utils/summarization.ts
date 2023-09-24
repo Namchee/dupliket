@@ -12,9 +12,7 @@ import { ModelException } from '@/exceptions/model';
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { RawKnowledge } from '@/types/knowledge';
 
-const conversationPrompt = `Identify the solution from the following problem-solution conversation.
-
-Present the solution in form of simple suggestion. Interaction between conversation participants will be separated by '---'.  
+const conversationPrompt = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Interaction between conversation participants will be separated by '---'.  
 
 Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
@@ -45,11 +43,13 @@ function getLLM() {
 }
 
 function formatIssueToPrompt(issue: GithubIssue, comments: GithubComment[]) {
-  const commentStr = comments.map(
-    comment => `@${comment.user.name}: ${comment.body}`,
-  );
+  const commentStr: string[] = [];
 
-  commentStr.push(`@${issue.user}: ${issue.body}`);
+  commentStr.push(`@${issue.user.name}: ${issue.body}`);
+
+  commentStr.push(
+    ...comments.map(comment => `@${comment.user.name}: ${comment.body}`),
+  );
 
   return dedent`
   Title: ${issue.title}

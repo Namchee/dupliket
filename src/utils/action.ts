@@ -49,7 +49,7 @@ function validateInput({
   if (isNaN(maxTokens) || maxTokens <= 0) {
     throw new InputException(
       'max_tokens',
-      'Maximum tokens must be a positive number',
+      `Maximum tokens must be a positive number. Found ${maxTokens}`,
     );
   }
 

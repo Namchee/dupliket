@@ -4,7 +4,7 @@ import dedent from 'dedent';
 
 import { createIssueComment, getRepositoryContent } from '@/utils/github';
 
-import { getSimilarIssues } from '@/utils/similarity';
+import { getSimilarIssues } from '@/utils/ai';
 import { logDebug } from '@/utils/logger';
 
 import type { GithubIssue } from '@/types/github';
@@ -21,8 +21,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
     return;
   }
 
-  const issueText = `Title: ${issue.title}\nBody: ${issue.body}`;
-  const similarIssues = await getSimilarIssues(issueText, knowledges);
+  const similarIssues = await getSimilarIssues(issue, knowledges);
 
   logDebug(`Found ${similarIssues.length} similar issue(s)`);
 

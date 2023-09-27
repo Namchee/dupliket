@@ -2,13 +2,7 @@
 
 Duplikat is a GitHub action that helps repository maintainers to triage issues efficiently by detecting possible duplicate issues and provide possible solutions for them. The solutions are based on similar issues that have been solved in the past and stored as knowledge base.
 
-It is powered by <abbr title="Large Language Model">LLM</abbr> via [LangChain](https://www.langchain.com/) to process issues and detect similarites from stored issues that can be added or deleted using slash-like commands from GitHub UI.
-
-## Features
-
-- ♿ Equipped with sensible default options, minimal setup doesn't require more than 2 inputs
-- 🤝 Supports multiple LLM provider and model
-- 🧠 Add new knowledge in any way you like, be it automatically with LLM or just manually typing out the knowledge.
+It is powered by <abbr title="Large Language Model">LLM</abbr> provided by [OpenAI](https://openai.com/) to process issues and detect similarites from stored issues that can be added or deleted using slash-like commands from GitHub UI.
 
 ## Installation
 
@@ -91,18 +85,12 @@ You can customize this actions with these following options (fill it on `with` s
 | **Name** | **Required?** | **Default Value** | **Description** |
 | -------- | ------------- | ----------------- | --------------- |
 | `access_token` | `true` | `-` | [GitHub's access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). Used to interact with GitHub API for managing knowledge and creating comments. **Note: Ensure that your token have permissions to read and write code and issues**
-| `api_key` | `true` | `-` | LLM provider API key. Please consult to the LLM provider of your choice on how to generate an API key. |
-| `model_provider` | `false` | `openai` | LLM provider name. Currently supported values are `openai` and `huggingface` (untested) |
-| `model` | `false` | `gpt-3.5-turbo` | LLM to be used for [knowledge gathering](#knowledge-gathering) |
-| `embedding_model` | `false` | `text-embedding-ada-002` | LLM to be used for calculating [issue similarity](#duplicate-issue-detection) |
-| `temperature` | `false` | `0.5` | Randomness of LLM on [knowledge gathering](#knowledge-gathering) phase. Must be a floating point between `0.0` and `1.0`
-| `max_tokens` | `false` | `250` | Maximum number of tokens to be generated on issue summarization. [What is token?](https://help.openai.com/en/articles/4936856-what-are-tokens-and-how-to-count-them) |
+| `api_key` | `true` | `-` | OpenAI's API key. You can get on by [signing up](https://platform.openai.com/signup) for an OpenAI account |
+| `model` | `false` | `gpt-3.5-turbo` | Model to be used for [knowledge gathering](#knowledge-gathering) |
+| `temperature` | `false` | `0.5` | Randomness of the model on [knowledge gathering](#knowledge-gathering) phase. Must be a floating point between `0.0` and `1.0`
 | `max_issues` | `false` | `3` | Maximum number of possibly similar issues to be displayed |
-| `similarity_threshold` | `false` | `0.85` | Minimum similarity for an issue to be considered as similar. Must be a floating point between `0.0` and `1.0` |
+| `min_similarity` | `false` | `0.85` | Minimum similarity for an issue to be considered as similar. Must be a floating point between `0.0` and `1.0` |
 | `debug` | `false` | `false` | Enable verbose logging |
-
-
-
 
 ## File Store
 

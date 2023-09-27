@@ -1,7 +1,5 @@
 import { context } from '@actions/github';
 
-import dedent from 'dedent';
-
 import {
   createReaction,
   deleteReaction,
@@ -10,7 +8,7 @@ import {
   hasWriteAccess,
   updateRepositoryContent,
 } from '@/utils/github';
-import { summarizeIssue } from '@/utils/summarization';
+import { extractKnowledge, getTextEmbedding } from '@/utils/ai';
 import { filterRelevantComments } from '@/utils/comment';
 import { logDebug } from '@/utils/logger';
 
@@ -45,9 +43,12 @@ async function handleAddKnowledgeCommand(
 
       const [_, problem, solution] = anchorSummary;
 
+      const embedding = await getTextEmbedding(
+        `Title: ${issue.title.trim()}\nBody:${problem.trim()}`,
+      );
+
       knowledgeInput = {
-        title: issue.title.trim(),
-        problem: problem.trim(),
+        embedding,
         solution: solution.trim(),
       };
     } else {
@@ -58,13 +59,7 @@ async function handleAddKnowledgeCommand(
       const allComments = await getIssueComments();
       const comments = filterRelevantComments(allComments);
 
-      knowledgeInput = await summarizeIssue(issue, comments);
-
-      logDebug(dedent`LLM Result:
-        Title: ${knowledgeInput.title}
-        Problem: ${knowledgeInput.problem}
-        Solution: ${knowledgeInput.solution}
-      `);
+      knowledgeInput = await extractKnowledge(issue, comments);
     }
 
     await updateRepositoryContent(

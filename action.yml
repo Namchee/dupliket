@@ -7,32 +7,16 @@ inputs:
     description: GitHub Personal Access Token
   api_key:
     required: true
-    description: API Key for LLM models
-  model_provider:
-    required: false
-    description: Model provider
-    default: openai
+    description: OpenAI 
   model:
     required: false
     description: Model to be used for identifying solutions from existing issues
     default: gpt-3.5-turbo
-  embedding_model:
-    required: false
-    description: Model to be used for text embeddings when searching for similar issues
-    default: text-embedding-ada-002
-  temperature:
-    required: false
-    description: Randomness of the generated solution
-    default: 0.0
-  max_tokens:
-    required: false
-    description: Maximum tokens for summarization
-    default: 1000
   max_issues:
     required: false
     description: Maximum number of similar issues to be returned
     default: 3
-  similarity_threshold:
+  min_similarity:
     required: false
     description: Minimum similarity for issues to be considered as similar
     default: 0.85

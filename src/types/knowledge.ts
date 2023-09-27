@@ -1,6 +1,5 @@
 export interface RawKnowledge {
-  title: string;
-  problem: string;
+  embedding: number[];
   solution: string;
 }
 

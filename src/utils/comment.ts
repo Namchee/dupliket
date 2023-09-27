@@ -1,5 +1,6 @@
 import { ADD_COMMAND, DELETE_COMMAND } from '@/constant/command';
-import { GithubComment } from '@/types/github';
+
+import type { GithubComment } from '@/types/github';
 
 export function filterRelevantComments(
   comments: GithubComment[],

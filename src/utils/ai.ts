@@ -72,6 +72,8 @@ export async function extractKnowledge(
   const openai = new OpenAI({ apiKey });
   const prompt = generatePrompt(issue, comments);
 
+  logDebug(prompt);
+
   const completion = await openai.chat.completions.create({
     model,
     temperature: 0,

@@ -1,8 +1,1 @@
-[
-  {
-    "issue_number": 38,
-    "title": "False Negative on Conventional PR?",
-    "problem": "Overview\n\nI'm using Conventional PR to prevent commits with bad messages to be merged to the main branch. I'm using the default conventional commit pattern\n\n^(build|chore|ci|docs|feat|fix|perf|refactor|revert|style|test){1}(\\\\(\\[\\w\\\\-\\\\.]+\\\\))?(!)?: (\\[\\w ])+(\\[\\s\\S]\\*)\n\nHowever, it seems commit messages like test commit is still considered to be valid. It seems like the conventional PR doesn't filter commit messages correctly.\n\nExpected Behavior\n\nThe pull request should be considered as invalid, since test commit does not conform the regex.\n\nActual Behavior\n\nThe pull request is considered as valid.",
-    "solution": "@[object Object]: It seems that the conventional PR is not filtering commit messages correctly. One possible solution is to modify the regular expression pattern to include a check for the minimum length of the commit message. This can be done by adding `{2,}` after `([\\w ])+` in the regular expression. This will ensure that the commit message contains at least two characters."
-  }
-]
+[]

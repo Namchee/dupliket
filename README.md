@@ -87,7 +87,6 @@ You can customize this actions with these following options (fill it on `with` s
 | `access_token` | `true` | `-` | [GitHub's access token](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens). Used to interact with GitHub API for managing knowledge and creating comments. **Note: Ensure that your token have permissions to read and write code and issues**
 | `api_key` | `true` | `-` | OpenAI's API key. You can get on by [signing up](https://platform.openai.com/signup) for an OpenAI account |
 | `model` | `false` | `gpt-3.5-turbo` | Model to be used for [knowledge gathering](#knowledge-gathering) |
-| `temperature` | `false` | `0.5` | Randomness of the model on [knowledge gathering](#knowledge-gathering) phase. Must be a floating point between `0.0` and `1.0`
 | `max_issues` | `false` | `3` | Maximum number of possibly similar issues to be displayed |
 | `min_similarity` | `false` | `0.85` | Minimum similarity for an issue to be considered as similar. Must be a floating point between `0.0` and `1.0` |
 | `debug` | `false` | `false` | Enable verbose logging |
@@ -100,7 +99,7 @@ Duplikat stores knowledges that are used for finding similar issues in a JSON fi
 [
   {
     "issue_number": 1,
-    "problem": "Simple problem description",
+    "embedding": "[0.6123, 0.12313, 0.43241, ...]",
     "solution": "Solution to the problem"
   },
   // ...

@@ -18,7 +18,7 @@ import { ADD_COMMAND, DELETE_COMMAND } from '@/constant/command';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { Knowledge, RawKnowledge } from '@/types/knowledge';
+import type { EmbedeedKnowledge, Knowledge } from '@/types/knowledge';
 
 async function handleAddKnowledgeCommand(
   issue: GithubIssue,
@@ -36,7 +36,7 @@ async function handleAddKnowledgeCommand(
       );
     }
 
-    let knowledgeInput: RawKnowledge;
+    let knowledge: EmbedeedKnowledge;
     const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
     if (anchorSummary?.length === 3) {
       logDebug('Found user-written summary');
@@ -47,8 +47,9 @@ async function handleAddKnowledgeCommand(
         `Title: ${issue.title.trim()}\nBody:${problem.trim()}`,
       );
 
-      knowledgeInput = {
-        embedding,
+      knowledge = {
+        issue_number: issue.number,
+        embedding: JSON.stringify(embedding),
         solution: solution.trim(),
       };
     } else {
@@ -59,21 +60,11 @@ async function handleAddKnowledgeCommand(
       const allComments = await getIssueComments();
       const comments = filterRelevantComments(allComments);
 
-      knowledgeInput = await extractKnowledge(issue, comments);
+      knowledge = await extractKnowledge(issue, comments);
     }
 
     await updateRepositoryContent(
-      JSON.stringify(
-        [
-          ...knowledges,
-          {
-            issue_number: issue.number,
-            ...knowledgeInput,
-          },
-        ],
-        null,
-        2,
-      ),
+      JSON.stringify([...knowledges, knowledge], null, 2),
       sha,
     );
 

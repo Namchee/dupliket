@@ -8,13 +8,13 @@ import { getSimilarIssues } from '@/utils/ai';
 import { logDebug } from '@/utils/logger';
 
 import type { GithubIssue } from '@/types/github';
-import type { Knowledge } from '@/types/knowledge';
+import type { EmbedeedKnowledge } from '@/types/knowledge';
 
 export async function handleIssueCreatedEvent(): Promise<void> {
   const issue = context.payload.issue as GithubIssue;
 
   const { content } = await getRepositoryContent();
-  const knowledges = JSON.parse(content) as Knowledge[];
+  const knowledges = JSON.parse(content) as EmbedeedKnowledge[];
   if (!knowledges.length) {
     logDebug('Existing knowledge not found');
 

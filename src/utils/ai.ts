@@ -14,7 +14,7 @@ import { logDebug } from '@/utils/logger';
 import { ModelException } from '@/exceptions/model';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { Knowledge, RawKnowledge } from '@/types/knowledge';
+import type { EmbedeedKnowledge, Knowledge } from '@/types/knowledge';
 
 function generatePrompt(issue: GithubIssue, comments: GithubComment[]): string {
   const header = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Interaction between conversation participants will be separated by '---'.
@@ -66,7 +66,7 @@ export async function getTextEmbedding(text: string): Promise<number[]> {
 export async function extractKnowledge(
   issue: GithubIssue,
   comments: GithubComment[],
-): Promise<RawKnowledge> {
+): Promise<EmbedeedKnowledge> {
   const { apiKey, model } = getActionInput();
 
   const openai = new OpenAI({ apiKey });
@@ -97,14 +97,15 @@ export async function extractKnowledge(
   const embedding = await getTextEmbedding(`Title: ${title}\nBody: ${body}`);
 
   return {
-    embedding,
+    issue_number: issue.number,
+    embedding: JSON.stringify(embedding),
     solution: result.trim(),
   };
 }
 
 export async function getSimilarIssues(
   { title, body }: GithubIssue,
-  knowledges: Knowledge[],
+  knowledges: EmbedeedKnowledge[],
 ): Promise<Knowledge[]> {
   const { minSimilarity, maxIssues } = getActionInput();
 
@@ -112,10 +113,12 @@ export async function getSimilarIssues(
   body = sanitizeMarkdown(body);
 
   const embedding = await getTextEmbedding(`Title: ${title}\nBody: ${body}`);
-  const similarity = knowledges.map(knowledge => ({
-    ...knowledge,
-    similarity: cosineSimilarity(embedding, knowledge.embedding),
-  }));
+  const similarity: (Knowledge & { similarity: number })[] = knowledges.map(
+    knowledge => ({
+      ...knowledge,
+      similarity: cosineSimilarity(embedding, JSON.parse(knowledge.embedding)),
+    }),
+  );
 
   const similarIssues = similarity
     .sort((a, b) => {
@@ -131,7 +134,6 @@ export async function getSimilarIssues(
 
   return similarIssues.map(issue => ({
     issue_number: issue.issue_number,
-    embedding: issue.embedding,
     solution: issue.solution,
   }));
 }

@@ -1,8 +1,8 @@
-export interface RawKnowledge {
-  embedding: number[];
+export interface Knowledge {
+  issue_number: number;
   solution: string;
 }
 
-export interface Knowledge extends RawKnowledge {
-  issue_number: number;
+export interface EmbedeedKnowledge extends Knowledge {
+  embedding: string;
 }

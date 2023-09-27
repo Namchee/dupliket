@@ -103,7 +103,7 @@ export async function handleIssueCommentEvent(): Promise<void> {
   const issue = context.payload.issue as unknown as GithubIssue;
   const comment = context.payload.comment as unknown as GithubComment;
 
-  if (!hasWriteAccess(comment.user.name)) {
+  if (!hasWriteAccess(comment.user.login)) {
     return;
   }
 

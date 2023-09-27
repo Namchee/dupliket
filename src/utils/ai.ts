@@ -17,19 +17,18 @@ import type { GithubIssue, GithubComment } from '@/types/github';
 import type { EmbedeedKnowledge, Knowledge } from '@/types/knowledge';
 
 function generatePrompt(issue: GithubIssue, comments: GithubComment[]): string {
-  const header = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion. Interaction between conversation participants will be separated by '---'.
+  const header = `Identify the solution from the following problem-solution conversation. Present the solution in form of simple suggestion.
 
-Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
+Interaction between conversation participants will be separated by '---'. All conversations begins with @<name> that can be used to identify a participant. Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
-If no solution for the issue are found or the issue has not been marked as resolved, reply with \`Not Found\`.`;
+If no solution for the issue are found or the potential solution has not been marked as solved by ${issue.user.login}, reply with \`Not Found\`.`;
 
   const commentStr: string[] = [];
 
-  console.log(issue);
-  console.log(comments);
-
-  commentStr.push(issue.body);
-  commentStr.push(...comments.map(comment => `${comment.body}`));
+  commentStr.push(`@${issue.user.login}: issue.body`);
+  commentStr.push(
+    ...comments.map(comment => `@${comment.user.login}: ${comment.body}`),
+  );
 
   return dedent`
   ${header}

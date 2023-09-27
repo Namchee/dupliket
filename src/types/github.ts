@@ -1,7 +1,7 @@
 export type Reaction = 'eyes' | '+1' | 'confused' | '-1';
 
 interface GithubUser {
-  name: string;
+  login: string;
   type: 'User' | 'Bot';
 }
 

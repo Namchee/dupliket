@@ -66,7 +66,7 @@ https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
 
 Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
-If no solution for the issue are found or the issue has not been marked as resolved by ${e.user.name}, reply with \`Not Found\`.`,n=[];return n.push(`@${e.user.name}: ${e.body}`),n.push(...t.map(a=>`@${a.user.name}: ${a.body}`)),ll.default`
+If no solution for the issue are found or the issue has not been marked as resolved, reply with \`Not Found\`.`,n=[];return console.log(e),console.log(t),n.push(e.body),n.push(...t.map(a=>`${a.body}`)),ll.default`
   ${r}
 
   Title: ${e.title}

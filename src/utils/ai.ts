@@ -21,14 +21,15 @@ function generatePrompt(issue: GithubIssue, comments: GithubComment[]): string {
 
 Conversation have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
-If no solution for the issue are found or the issue has not been marked as resolved by ${issue.user.name}, reply with \`Not Found\`.`;
+If no solution for the issue are found or the issue has not been marked as resolved, reply with \`Not Found\`.`;
 
   const commentStr: string[] = [];
 
-  commentStr.push(`@${issue.user.name}: ${issue.body}`);
-  commentStr.push(
-    ...comments.map(comment => `@${comment.user.name}: ${comment.body}`),
-  );
+  console.log(issue);
+  console.log(comments);
+
+  commentStr.push(issue.body);
+  commentStr.push(...comments.map(comment => `${comment.body}`));
 
   return dedent`
   ${header}

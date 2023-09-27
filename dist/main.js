@@ -66,7 +66,7 @@ https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
 
 Interaction between conversation participants will be separated by '---'. All conversations begins with @<name> that can be used to identify a participant. Conversation may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
-If no solution for the issue are found or the potential solution has not been marked as solved by ${e.user.login}, reply with \`Not Found\`.`,n=[];return n.push(`@${e.user.login}: issue.body`),n.push(...t.map(a=>`@${a.user.login}: ${a.body}`)),ll.default`
+If no solution for the issue are found or the potential solution has not been marked as solved by ${e.user.login}, reply with \`Not Found\`.`,n=[];return n.push(`@${e.user.login}: ${e.body}`),n.push(...t.map(a=>`@${a.user.login}: ${a.body}`)),ll.default`
   ${r}
 
   Title: ${e.title}

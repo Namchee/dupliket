@@ -25,7 +25,7 @@ If no solution for the issue are found or the potential solution has not been ma
 
   const commentStr: string[] = [];
 
-  commentStr.push(`@${issue.user.login}: issue.body`);
+  commentStr.push(`@${issue.user.login}: ${issue.body}`);
   commentStr.push(
     ...comments.map(comment => `@${comment.user.login}: ${comment.body}`),
   );

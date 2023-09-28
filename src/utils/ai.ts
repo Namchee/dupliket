@@ -72,7 +72,14 @@ export async function extractKnowledge(
   const completion = await openai.chat.completions.create({
     model,
     temperature: 0,
-    messages: [{ role: 'user', content: prompt }],
+    messages: [
+      {
+        role: 'system',
+        content:
+          'You are a repository maintainer and an expert on analyzing and triaging issues.',
+      },
+      { role: 'user', content: prompt },
+    ],
   });
   let result = completion.choices[0].message.content as string;
 

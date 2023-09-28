@@ -37,9 +37,9 @@ There are 2 main features of Duplikat:
 
 Every time a new issue is created, Duplikat will try to find similar issue(s) that have been solved in the past. If similar issue(s) are found, Duplikat will create an additional comment that lists possible solutions and reference link for each similar issue(s).
 
-Similarity of issues are determined by the `similarity_threshold` input.
+Similarity of issues are determined by `min_similarity`.
 
-See [Issue #22](https://github.com/Namchee/duplikat/issues/22) for hands-on examples.
+See [Issue #40](https://github.com/Namchee/duplikat/issues/40) for hands-on examples.
 
 ### Knowledge Gathering
 
@@ -64,7 +64,7 @@ Solution: <solution for this issue>
 
 Doing this will skip any kind of data processing by LLM.
 
-See [Issue #23](https://github.com/Namchee/duplikat/issues/23) for more detailed examples.
+See [Issue #41](https://github.com/Namchee/duplikat/issues/41) for more detailed examples.
 
 > Maintainers may not add an issue as a knowledge more than once
 

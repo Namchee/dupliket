@@ -70,7 +70,7 @@ async function handleAddKnowledgeCommand(
 
     await createReaction(comment.id, '+1');
   } catch (err) {
-    await createReaction(comment.id, '-1');
+    await createReaction(comment.id, 'confused');
 
     throw err;
   } finally {

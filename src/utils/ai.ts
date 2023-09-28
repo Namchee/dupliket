@@ -9,7 +9,6 @@ import { remark } from 'remark';
 
 import { getActionInput } from '@/utils/action';
 import { cosineSimilarity } from '@/utils/meth';
-import { logDebug } from '@/utils/logger';
 
 import { ModelException } from '@/exceptions/model';
 
@@ -72,8 +71,6 @@ export async function extractKnowledge(
   const openai = new OpenAI({ apiKey });
   const prompt = generatePrompt(issue, comments);
 
-  logDebug(prompt);
-
   const completion = await openai.chat.completions.create({
     model,
     temperature: 0,
@@ -88,10 +85,6 @@ export async function extractKnowledge(
   if (result.startsWith('Not Found')) {
     throw new ModelException('Issue solution not found');
   }
-
-  logDebug(
-    dedent`Solution to issue ${issue.number} according to LLM: ${result}`,
-  );
 
   const title = sanitizeMarkdown(issue.title);
   const body = sanitizeMarkdown(issue.body);

@@ -87,13 +87,13 @@ export async function hasWriteAccess(username: string): Promise<boolean> {
   const { owner, repo } = context.issue;
 
   try {
-    await octokit.rest.repos.checkCollaborator({
+    const result = await octokit.rest.repos.checkCollaborator({
       owner,
       repo,
       username,
     });
 
-    return true;
+    return result.status === 204;
   } catch (err) {
     return false;
   }

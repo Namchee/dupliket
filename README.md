@@ -53,7 +53,7 @@ Maintainers may add a new knowledge related to an issue by creating a new commen
 /add-knowledge
 ```
 
-By default, all non-user content and Duplikat-related commands are excluded from LLM evaluation. You can also exclude comments manually by giving a `:-1:` reaction at them.
+By default, all non-user content and Duplikat-related commands are excluded from LLM evaluation. You can also exclude comments manually by [hiding it](https://docs.github.com/en/communities/moderating-comments-and-conversations/managing-disruptive-comments).
 
 Additionally, maintainers may write the problem and solution manually and include them to the base command
 

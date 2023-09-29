@@ -12,7 +12,7 @@ export function filterRelevantComments(
     const isCommand =
       comment.body.startsWith(ADD_COMMAND) ||
       comment.body.startsWith(DELETE_COMMAND);
-    const isExcluded = comment.reactions['-1'] > 0;
+    const isExcluded = comment.isMinimized;
 
     if (!isBot && !isCommand && !isExcluded) {
       result.push(comment);

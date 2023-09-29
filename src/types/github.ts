@@ -25,9 +25,7 @@ export interface GithubComment {
   id: number;
   user: GithubUser;
   body: string;
-  reactions: {
-    [key in Reaction]: number;
-  };
+  isMinimized: boolean;
 }
 
 export interface GithubReaction {

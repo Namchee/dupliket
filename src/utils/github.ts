@@ -10,6 +10,23 @@ import type {
   GithubComment,
 } from '@/types/github';
 
+interface IssueCommentQueryResult {
+  repository: {
+    issue: {
+      comments: {
+        nodes: {
+          id: string;
+          body: string;
+          author: {
+            login: string;
+          };
+          isMinimized: boolean;
+        }[];
+      };
+    };
+  };
+}
+
 const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
 
 function getOctokit() {
@@ -104,13 +121,40 @@ export async function getIssueComments(): Promise<GithubComment[]> {
 
   const { owner, repo, number } = context.issue;
 
-  const { data } = await octokit.rest.issues.listComments({
-    owner,
-    repo,
-    issue_number: number,
-  });
+  const result = (await octokit.graphql(
+    `
+    query getComments($owner: String!, $repo: String!, $number: Int!, $amount: Int = 100) {
+      repository(owner: $owner, name: $repo) {
+        issue(number: $number) {
+          comments(first: $amount) {
+            nodes {
+              id
+              body
+              author {
+                login
+              }
+              isMinimized
+            }
+          }
+        }
+      }
+    }
+  `,
+    {
+      owner,
+      repo,
+      number,
+    },
+  )) as IssueCommentQueryResult;
 
-  return data as unknown as GithubComment[];
+  const gqlComments = result.repository.issue.comments.nodes;
+
+  return gqlComments.map(comment => ({
+    id: comment.id,
+    body: comment.body,
+    user: comment.author,
+    isMinimized: comment.isMinimized,
+  }));
 }
 
 export async function createIssueComment(body: string): Promise<void> {

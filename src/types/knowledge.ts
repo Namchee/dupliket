@@ -6,3 +6,8 @@ export interface Knowledge {
 export interface EncodedKnowledge extends Knowledge {
   embedding: string;
 }
+
+export interface UserKnowledge {
+  problem?: string;
+  solution?: string;
+}

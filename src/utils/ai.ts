@@ -69,7 +69,7 @@ export async function getTextEmbedding(text: string): Promise<string> {
 export async function extractKnowledge(
   issue: GithubIssue,
   comments: GithubComment[],
-): Promise<EncodedKnowledge> {
+): Promise<string> {
   const { apiKey, model } = getActionInput();
 
   const openai = new OpenAI({ apiKey });
@@ -97,16 +97,7 @@ export async function extractKnowledge(
     throw new ModelException('Issue solution not found');
   }
 
-  const title = sanitizeMarkdown(issue.title);
-  const body = sanitizeMarkdown(issue.body);
-
-  const embedding = await getTextEmbedding(`Title: ${title}\nBody: ${body}`);
-
-  return {
-    issue_number: issue.number,
-    embedding,
-    solution: result.trim(),
-  };
+  return result.trim();
 }
 
 export async function getSimilarIssues(

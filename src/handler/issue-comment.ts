@@ -9,16 +9,15 @@ import {
   updateRepositoryContent,
 } from '@/utils/github';
 import { extractKnowledge, getTextEmbedding } from '@/utils/ai';
-import { filterRelevantComments } from '@/utils/comment';
+import { extractUserKnowledge, filterRelevantComments } from '@/utils/comment';
 import { logDebug } from '@/utils/logger';
 
 import { StorageException } from '@/exceptions/storage';
 
 import { ADD_COMMAND, DELETE_COMMAND } from '@/constant/command';
-import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { EncodedKnowledge, Knowledge } from '@/types/knowledge';
+import type { Knowledge } from '@/types/knowledge';
 
 async function handleAddKnowledgeCommand(
   issue: GithubIssue,
@@ -36,35 +35,34 @@ async function handleAddKnowledgeCommand(
       );
     }
 
-    let knowledge: EncodedKnowledge;
-    const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
-    if (anchorSummary?.length === 3) {
-      logDebug('Found user-written summary');
+    const knowledge = extractUserKnowledge(issue.body);
+    if (!knowledge.problem) {
+      logDebug('User-written problem not found. Embedding from issue body.');
 
-      const [_, problem, solution] = anchorSummary;
+      knowledge.problem = issue.body;
+    }
 
-      const embedding = await getTextEmbedding(
-        `Title: ${issue.title.trim()}\nBody:${problem.trim()}`,
-      );
+    knowledge.problem = await getTextEmbedding(knowledge.problem);
 
-      knowledge = {
-        issue_number: issue.number,
-        embedding: JSON.stringify(embedding),
-        solution: solution.trim(),
-      };
-    } else {
+    if (!knowledge.solution) {
       logDebug(
-        'User-written summary not found. Calling LLM to identify the solution',
+        'User-written problem not found. Analyzing from issue state with LLM.',
       );
 
-      const allComments = await getIssueComments();
-      const comments = filterRelevantComments(allComments);
+      let comments = await getIssueComments();
+      comments = filterRelevantComments(comments);
 
-      knowledge = await extractKnowledge(issue, comments);
+      knowledge.solution = await extractKnowledge(issue, comments);
+
+      logDebug(`Extracted solution from LLM: ${knowledge.solution}`);
     }
 
     await updateRepositoryContent(
-      JSON.stringify([...knowledges, knowledge], null, 2),
+      JSON.stringify(
+        [...knowledges, { ...knowledge, issue_number: issue.number }],
+        null,
+        2,
+      ),
       sha,
     );
 

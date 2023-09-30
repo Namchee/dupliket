@@ -15,10 +15,11 @@ interface IssueCommentQueryResult {
     issue: {
       comments: {
         nodes: {
-          id: string;
+          fullDatabaseId: number;
           body: string;
           author: {
             login: string;
+            type: 'User' | 'Bot';
           };
           isMinimized: boolean;
         }[];
@@ -128,7 +129,7 @@ export async function getIssueComments(): Promise<GithubComment[]> {
         issue(number: $number) {
           comments(first: $amount) {
             nodes {
-              id
+              fullDatabaseId
               body
               author {
                 login
@@ -150,7 +151,7 @@ export async function getIssueComments(): Promise<GithubComment[]> {
   const gqlComments = result.repository.issue.comments.nodes;
 
   return gqlComments.map(comment => ({
-    id: comment.id,
+    id: comment.fullDatabaseId,
     body: comment.body,
     user: comment.author,
     isMinimized: comment.isMinimized,

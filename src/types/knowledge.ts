@@ -3,6 +3,6 @@ export interface Knowledge {
   solution: string;
 }
 
-export interface EmbedeedKnowledge extends Knowledge {
+export interface EncodedKnowledge extends Knowledge {
   embedding: string;
 }

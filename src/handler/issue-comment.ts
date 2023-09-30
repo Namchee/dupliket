@@ -18,7 +18,7 @@ import { ADD_COMMAND, DELETE_COMMAND } from '@/constant/command';
 import { ADD_KNOWLEDGE_PATTERN } from '@/constant/template';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { EmbedeedKnowledge, Knowledge } from '@/types/knowledge';
+import type { EncodedKnowledge, Knowledge } from '@/types/knowledge';
 
 async function handleAddKnowledgeCommand(
   issue: GithubIssue,
@@ -36,7 +36,7 @@ async function handleAddKnowledgeCommand(
       );
     }
 
-    let knowledge: EmbedeedKnowledge;
+    let knowledge: EncodedKnowledge;
     const anchorSummary = ADD_KNOWLEDGE_PATTERN.exec(comment.body as string);
     if (anchorSummary?.length === 3) {
       logDebug('Found user-written summary');

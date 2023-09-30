@@ -13,7 +13,11 @@ import { cosineSimilarity } from '@/utils/meth';
 import { ModelException } from '@/exceptions/model';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { EmbedeedKnowledge, Knowledge } from '@/types/knowledge';
+import type { EncodedKnowledge, Knowledge } from '@/types/knowledge';
+
+function base64ToVector(input: string): number[] {
+  return [...Buffer.from(input, 'base64').values()];
+}
 
 function generatePrompt(issue: GithubIssue, comments: GithubComment[]): string {
   const header = `Identify the solution from the following GitHub issue and its comments. Present the solution as a suggestion in one sentence.
@@ -48,7 +52,7 @@ function sanitizeMarkdown(text: string): string {
     .toString();
 }
 
-export async function getTextEmbedding(text: string): Promise<number[]> {
+export async function getTextEmbedding(text: string): Promise<string> {
   const { apiKey } = getActionInput();
 
   const openai = new OpenAI({ apiKey });
@@ -57,13 +61,15 @@ export async function getTextEmbedding(text: string): Promise<number[]> {
     model: 'text-embedding-ada-002',
   });
 
-  return embeddings.data[0].embedding;
+  const rawEmbedding = embeddings.data[0].embedding;
+
+  return Buffer.from(rawEmbedding).toString('base64');
 }
 
 export async function extractKnowledge(
   issue: GithubIssue,
   comments: GithubComment[],
-): Promise<EmbedeedKnowledge> {
+): Promise<EncodedKnowledge> {
   const { apiKey, model } = getActionInput();
 
   const openai = new OpenAI({ apiKey });
@@ -98,25 +104,32 @@ export async function extractKnowledge(
 
   return {
     issue_number: issue.number,
-    embedding: JSON.stringify(embedding),
+    embedding,
     solution: result.trim(),
   };
 }
 
 export async function getSimilarIssues(
   { title, body }: GithubIssue,
-  knowledges: EmbedeedKnowledge[],
+  knowledges: EncodedKnowledge[],
 ): Promise<Knowledge[]> {
   const { minSimilarity, maxIssues } = getActionInput();
 
   title = sanitizeMarkdown(title);
   body = sanitizeMarkdown(body);
 
-  const embedding = await getTextEmbedding(`Title: ${title}\nBody: ${body}`);
+  const encodedEmbedding = await getTextEmbedding(
+    `Title: ${title}\nBody: ${body}`,
+  );
+  const embedding = base64ToVector(encodedEmbedding);
+
   const similarity: (Knowledge & { similarity: number })[] = knowledges.map(
     knowledge => ({
       ...knowledge,
-      similarity: cosineSimilarity(embedding, JSON.parse(knowledge.embedding)),
+      similarity: cosineSimilarity(
+        embedding,
+        base64ToVector(knowledge.embedding),
+      ),
     }),
   );
 

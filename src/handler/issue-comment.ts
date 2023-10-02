@@ -63,7 +63,7 @@ async function handleAddKnowledgeCommand(
           ...knowledges,
           {
             issue_number: issue.number,
-            problem: embedeedProblem,
+            embedding: embedeedProblem,
             solution: knowledge.solution,
           },
         ],

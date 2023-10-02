@@ -19,7 +19,7 @@ inputs:
   min_similarity:
     required: false
     description: Minimum similarity for issues to be considered as similar
-    default: 0.85
+    default: 0.9
   debug:
     required: false
     description: Enable verbose logging

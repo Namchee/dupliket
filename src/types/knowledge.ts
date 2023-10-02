@@ -3,7 +3,11 @@ export interface Knowledge {
   solution: string;
 }
 
-export interface EncodedKnowledge extends Knowledge {
+export interface SimilarKnowledge extends Knowledge {
+  similarity: number;
+}
+
+export interface EmbedeedKnowledge extends Knowledge {
   embedding: number[];
 }
 

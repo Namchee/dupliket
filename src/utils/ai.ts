@@ -13,7 +13,11 @@ import { cosineSimilarity } from '@/utils/meth';
 import { ModelException } from '@/exceptions/model';
 
 import type { GithubIssue, GithubComment } from '@/types/github';
-import type { EncodedKnowledge, Knowledge } from '@/types/knowledge';
+import type {
+  EmbedeedKnowledge,
+  Knowledge,
+  SimilarKnowledge,
+} from '@/types/knowledge';
 
 function generatePrompt(issue: GithubIssue, comments: GithubComment[]): string {
   const header = `Identify the solution from the following GitHub issue and its comments. Present the solution as a suggestion in one sentence.
@@ -96,8 +100,8 @@ export async function extractKnowledge(
 
 export async function getSimilarIssues(
   { title, body }: GithubIssue,
-  knowledges: EncodedKnowledge[],
-): Promise<Knowledge[]> {
+  knowledges: EmbedeedKnowledge[],
+): Promise<SimilarKnowledge[]> {
   const { minSimilarity, maxIssues } = getActionInput();
 
   title = sanitizeMarkdown(title);
@@ -114,7 +118,7 @@ export async function getSimilarIssues(
     }),
   );
 
-  const similarIssues = similarity
+  return similarity
     .sort((a, b) => {
       if (a.similarity !== b.similarity) {
         return a.similarity - b.similarity;
@@ -125,9 +129,4 @@ export async function getSimilarIssues(
     .reverse()
     .filter(issue => issue.similarity >= minSimilarity)
     .slice(0, maxIssues);
-
-  return similarIssues.map(issue => ({
-    issue_number: issue.issue_number,
-    solution: issue.solution,
-  }));
 }

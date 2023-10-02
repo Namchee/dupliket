@@ -4,7 +4,7 @@ export interface Knowledge {
 }
 
 export interface EncodedKnowledge extends Knowledge {
-  embedding: string;
+  embedding: number[];
 }
 
 export interface UserKnowledge {

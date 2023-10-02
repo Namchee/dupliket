@@ -42,7 +42,7 @@ async function handleAddKnowledgeCommand(
       knowledge.problem = issue.body;
     }
 
-    knowledge.problem = await getTextEmbedding(knowledge.problem);
+    const embedeedProblem = await getTextEmbedding(knowledge.problem);
 
     if (!knowledge.solution) {
       logDebug(
@@ -59,7 +59,14 @@ async function handleAddKnowledgeCommand(
 
     await updateRepositoryContent(
       JSON.stringify(
-        [...knowledges, { ...knowledge, issue_number: issue.number }],
+        [
+          ...knowledges,
+          {
+            issue_number: issue.number,
+            problem: embedeedProblem,
+            solution: knowledge.solution,
+          },
+        ],
         null,
         2,
       ),

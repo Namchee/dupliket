@@ -55,16 +55,26 @@ Maintainers may add a new knowledge related to an issue by creating a new commen
 
 By default, all non-user content and Duplikat-related commands are excluded from LLM evaluation. You can also exclude comments manually by [hiding it](https://docs.github.com/en/communities/moderating-comments-and-conversations/managing-disruptive-comments).
 
-Additionally, maintainers may write the problem and solution manually and include them to the base command
+Additionally, maintainers may write the problem and solution manually to skip LLM evaluation. To define the problem manually, append the problem to the base command in the following format:
+
+```
+Problem: <summary of the issue>
+```
+
+To define the solution manually, append the solution to the base command in the following format:
+
+```
+Solution: <solution for this issue>
+```
+
+Both definition can be combined in a single command, for example:
 
 ```
 /add-knowledge
 
-Problem: <summary of the issue>
-Solution: <solution for this issue>
+Problem: this is the problem
+Solution: this is the solution
 ```
-
-Doing this will skip any kind of data processing by LLM.
 
 See [Issue #41](https://github.com/Namchee/duplikat/issues/41) for more detailed examples.
 

@@ -20,10 +20,6 @@ inputs:
     required: false
     description: Minimum similarity for issues to be considered as similar
     default: 0.9
-  debug:
-    required: false
-    description: Enable verbose logging
-    default: false
 runs:
   using: 'node20'
   main: 'dist/main.js'

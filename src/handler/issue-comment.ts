@@ -10,7 +10,7 @@ import {
 } from '@/utils/github';
 import { extractKnowledge, getTextEmbedding } from '@/utils/ai';
 import { extractUserKnowledge, filterRelevantComments } from '@/utils/comment';
-import { logDebug } from '@/utils/logger';
+import { logInfo } from '@/utils/logger';
 
 import { StorageException } from '@/exceptions/storage';
 
@@ -37,7 +37,7 @@ async function handleAddKnowledgeCommand(
 
     const knowledge = extractUserKnowledge(issue.body);
     if (!knowledge.problem) {
-      logDebug('User-written problem not found. Embedding from issue body.');
+      logInfo('User-written problem not found. Embedding from issue body.');
 
       knowledge.problem = issue.body;
     }
@@ -45,8 +45,8 @@ async function handleAddKnowledgeCommand(
     const embedeedProblem = await getTextEmbedding(knowledge.problem);
 
     if (!knowledge.solution) {
-      logDebug(
-        'User-written problem not found. Analyzing from issue state with LLM.',
+      logInfo(
+        'User-written solution not found. Analyzing from issue state with LLM.',
       );
 
       let comments = await getIssueComments();
@@ -54,8 +54,11 @@ async function handleAddKnowledgeCommand(
 
       knowledge.solution = await extractKnowledge(issue, comments);
 
-      logDebug(`Extracted solution from LLM: ${knowledge.solution}`);
+      logInfo(`Extracted solution from LLM: ${knowledge.solution}`);
     }
+
+    logInfo(`Problem: ${knowledge.problem}`);
+    logInfo(`Solution: ${knowledge.solution}`);
 
     await updateRepositoryContent(
       JSON.stringify(

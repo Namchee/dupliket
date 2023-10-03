@@ -5,7 +5,7 @@ import dedent from 'dedent';
 import { createIssueComment, getRepositoryContent } from '@/utils/github';
 
 import { getSimilarIssues } from '@/utils/ai';
-import { logDebug } from '@/utils/logger';
+import { logInfo } from '@/utils/logger';
 
 import type { GithubIssue } from '@/types/github';
 import type { EmbedeedKnowledge } from '@/types/knowledge';
@@ -16,14 +16,14 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   const { content } = await getRepositoryContent();
   const knowledges = JSON.parse(content) as EmbedeedKnowledge[];
   if (!knowledges.length) {
-    logDebug('Existing knowledge not found');
+    logInfo('Existing knowledge not found');
 
     return;
   }
 
   const similarIssues = await getSimilarIssues(issue, knowledges);
 
-  logDebug(`Found ${similarIssues.length} similar issue(s)`);
+  logInfo(`Found ${similarIssues.length} similar issue(s)`);
 
   if (similarIssues.length) {
     const possibleSolutions = similarIssues.map(

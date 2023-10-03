@@ -10,7 +10,7 @@ jobs:
     steps:
       - name: Checkout to repository
         uses: actions/checkout@v3
-      - name: Find similar issues
+      - name: Summarize issue and add new knowledge
         uses: ./
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}

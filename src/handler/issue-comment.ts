@@ -35,8 +35,7 @@ async function handleAddKnowledgeCommand(
       );
     }
 
-    const knowledge = extractUserKnowledge(issue.body);
-    console.log(knowledge);
+    const knowledge = extractUserKnowledge(comment.body);
     if (!knowledge.problem) {
       logInfo('User-written problem not found. Embedding from issue body.');
 
@@ -57,9 +56,6 @@ async function handleAddKnowledgeCommand(
 
       logInfo(`Extracted solution from LLM: ${knowledge.solution}`);
     }
-
-    logInfo(`Problem: ${knowledge.problem}`);
-    logInfo(`Solution: ${knowledge.solution}`);
 
     await updateRepositoryContent(
       JSON.stringify(

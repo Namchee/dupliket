@@ -22,25 +22,24 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   }
 
   const similarIssues = await getSimilarIssues(issue, knowledges);
+  const count = similarIssues.length;
 
-  logInfo(`Found ${similarIssues.length} similar issue(s)`);
+  if (count) {
+    const solutions = similarIssues.map(
+      (issue, index) => `- ${issue.solution}[^${index + 1}]`,
+    );
+    const links = similarIssues.map(
+      (issue, index) => `[^${index + 1}]: ${issue.solution}`,
+    );
 
-  if (similarIssues.length) {
-    const possibleSolutions = similarIssues.map(
-      (issue, index) => `${index + 1}. ${issue.solution}`,
-    );
-    const references = similarIssues.map(
-      (issue, index) => `${index + 1}. #${issue.issue_number}`,
-    );
+    const nominator = similarIssues.length === 1 ? 'is' : 'are';
+    const noun = similarIssues.length === 1 ? 'issue' : 'issues';
 
     const outputBody = dedent`
-    ## Possible Solutions
+    Looks like there ${nominator} ${count} similar ${noun} to this one. Here is a list possible solutions based on those similar ${noun}
   
-    ${possibleSolutions.join('\n')}
-  
-    ## Related Issues
-  
-    ${references.join('\n')}
+    ${solutions.join('\n')}
+    ${links.join('\n')}
   
     <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
     `;

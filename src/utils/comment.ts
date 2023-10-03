@@ -24,6 +24,7 @@ export function filterRelevantComments(
 }
 
 export function extractUserKnowledge(body: string): UserKnowledge {
+  console.log(body);
   const knowledge: UserKnowledge = {};
 
   const userProblem = /Problems?:\s*([\s\S]*?)(?=(?:Solutions?:|$))/i.exec(
@@ -39,6 +40,8 @@ export function extractUserKnowledge(body: string): UserKnowledge {
   if (userSolution) {
     knowledge.solution = userSolution[1].trim();
   }
+
+  console.log(userProblem, userSolution);
 
   return knowledge;
 }

@@ -29,7 +29,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
       (issue, index) => `- ${issue.solution}[^${index + 1}]`,
     );
     const links = similarIssues.map(
-      (issue, index) => `[^${index + 1}]: ${issue.solution}`,
+      (issue, index) => `[^${index + 1}]: ${issue.issue_number}`,
     );
 
     const nominator = similarIssues.length === 1 ? 'is' : 'are';

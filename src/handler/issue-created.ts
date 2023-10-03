@@ -29,14 +29,14 @@ export async function handleIssueCreatedEvent(): Promise<void> {
       (issue, index) => `- ${issue.solution}[^${index + 1}]`,
     );
     const links = similarIssues.map(
-      (issue, index) => `[^${index + 1}]: ${issue.issue_number}`,
+      (issue, index) => `[^${index + 1}]: #${issue.issue_number}`,
     );
 
     const nominator = similarIssues.length === 1 ? 'is' : 'are';
     const noun = similarIssues.length === 1 ? 'issue' : 'issues';
 
     const outputBody = dedent`
-    Looks like there ${nominator} ${count} similar ${noun} to this one. Here is a list possible solutions based on those similar ${noun}
+    Looks like there ${nominator} ${count} similar ${noun} to this one. Here is a list possible solutions based on those similar ${noun}:
   
     ${solutions.join('\n')}
     ${links.join('\n')}

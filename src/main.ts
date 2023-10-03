@@ -1,9 +1,8 @@
-import { info, setFailed } from '@actions/core';
+import { setFailed } from '@actions/core';
 import { context } from '@actions/github';
 
 import { handleIssueCreatedEvent } from '@/handler/issue-created';
 import { handleIssueCommentEvent } from '@/handler/issue-comment';
-import { ModelException } from './exceptions/model';
 
 const HANDLER_MAP = {
   issues: handleIssueCreatedEvent,
@@ -21,10 +20,6 @@ async function run(): Promise<void> {
     }
   } catch (err) {
     const error = err as Error;
-
-    if (error instanceof ModelException) {
-      return info(error.message);
-    }
 
     setFailed(error);
   }

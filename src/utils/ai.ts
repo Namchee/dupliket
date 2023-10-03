@@ -10,8 +10,6 @@ import { remark } from 'remark';
 import { getActionInput } from '@/utils/action';
 import { cosineSimilarity } from '@/utils/meth';
 
-import { ModelException } from '@/exceptions/model';
-
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type {
   EmbedeedKnowledge,
@@ -92,7 +90,7 @@ export async function extractKnowledge(
   }
 
   if (result.startsWith('Not Found')) {
-    throw new ModelException('Issue solution not found');
+    result = '';
   }
 
   return result.trim();

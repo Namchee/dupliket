@@ -19,59 +19,20 @@ import { ADD_COMMAND, DELETE_COMMAND } from '@/constant/command';
 import type { GithubIssue, GithubComment } from '@/types/github';
 import type { Knowledge } from '@/types/knowledge';
 
-async function handleAddKnowledgeCommand(
+export type CommandHandler = (
+  issue: GithubIssue,
+  comment: GithubComment,
+) => Promise<void>;
+
+async function wrapCommandHandler(
+  handler: CommandHandler,
   issue: GithubIssue,
   comment: GithubComment,
 ): Promise<void> {
-  const processingEmoji = await createReaction(comment.id, 'eyes');
+  const emoji = await createReaction(comment.id, 'eyes');
 
   try {
-    const { content, sha } = await getRepositoryContent();
-    const knowledges = JSON.parse(content) as Knowledge[];
-
-    if (knowledges.find(knowledge => knowledge.issue_number === issue.number)) {
-      throw new StorageException(
-        `Duplicate knowledge for issue ${issue.number}. Please remove existing knowledge first.`,
-      );
-    }
-
-    const knowledge = extractUserKnowledge(comment.body);
-    if (!knowledge.problem) {
-      logInfo('User-written problem not found. Embedding from issue body.');
-
-      knowledge.problem = issue.body;
-    }
-
-    const embedeedProblem = await getTextEmbedding(knowledge.problem);
-
-    if (!knowledge.solution) {
-      logInfo(
-        'User-written solution not found. Analyzing from issue state with LLM.',
-      );
-
-      let comments = await getIssueComments();
-      comments = filterRelevantComments(comments);
-
-      knowledge.solution = await extractKnowledge(issue, comments);
-
-      logInfo(`Extracted solution from LLM: ${knowledge.solution}`);
-    }
-
-    await updateRepositoryContent(
-      JSON.stringify(
-        [
-          ...knowledges,
-          {
-            issue_number: issue.number,
-            embedding: embedeedProblem,
-            solution: knowledge.solution,
-          },
-        ],
-        null,
-        2,
-      ),
-      sha,
-    );
+    await handler(issue, comment);
 
     await createReaction(comment.id, '+1');
   } catch (err) {
@@ -79,8 +40,60 @@ async function handleAddKnowledgeCommand(
 
     throw err;
   } finally {
-    await deleteReaction(comment.id, processingEmoji.id);
+    await deleteReaction(comment.id, emoji.id);
   }
+}
+
+async function handleAddKnowledgeCommand(
+  issue: GithubIssue,
+  comment: GithubComment,
+): Promise<void> {
+  const { content, sha } = await getRepositoryContent();
+  const knowledges = JSON.parse(content) as Knowledge[];
+
+  if (knowledges.find(knowledge => knowledge.issue_number === issue.number)) {
+    throw new StorageException(
+      `Duplicate knowledge for issue ${issue.number}. Please remove existing knowledge first.`,
+    );
+  }
+
+  const knowledge = extractUserKnowledge(comment.body);
+  if (!knowledge.problem) {
+    logInfo('User-written problem not found. Embedding from issue body.');
+
+    knowledge.problem = issue.body;
+  }
+
+  const embedeedProblem = await getTextEmbedding(knowledge.problem);
+
+  if (!knowledge.solution) {
+    logInfo(
+      'User-written solution not found. Analyzing from issue state with LLM.',
+    );
+
+    let comments = await getIssueComments();
+    comments = filterRelevantComments(comments);
+
+    knowledge.solution = await extractKnowledge(issue, comments);
+
+    logInfo(`Extracted solution from LLM: ${knowledge.solution}`);
+  }
+
+  await updateRepositoryContent(
+    JSON.stringify(
+      [
+        ...knowledges,
+        {
+          issue_number: issue.number,
+          embedding: embedeedProblem,
+          solution: knowledge.solution,
+        },
+      ],
+      null,
+      2,
+    ),
+    sha,
+  );
 }
 
 async function handleDeleteKnowledgeCommand(
@@ -113,8 +126,8 @@ export async function handleIssueCommentEvent(): Promise<void> {
   }
 
   if (comment.body.startsWith(ADD_COMMAND)) {
-    await handleAddKnowledgeCommand(issue, comment);
+    await wrapCommandHandler(handleAddKnowledgeCommand, issue, comment);
   } else if (comment.body.startsWith(DELETE_COMMAND)) {
-    await handleDeleteKnowledgeCommand(issue, comment);
+    await wrapCommandHandler(handleDeleteKnowledgeCommand, issue, comment);
   }
 }

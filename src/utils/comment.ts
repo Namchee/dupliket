@@ -42,11 +42,3 @@ export function extractUserKnowledge(body: string): UserKnowledge {
 
   return knowledge;
 }
-
-(() => {
-  const user = extractUserKnowledge(`/add-knowledge
-
-  Problem: lorem ipsum dolor sil amet`);
-
-  console.log(user);
-})();

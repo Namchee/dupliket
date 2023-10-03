@@ -36,6 +36,7 @@ async function handleAddKnowledgeCommand(
     }
 
     const knowledge = extractUserKnowledge(issue.body);
+    console.log(knowledge);
     if (!knowledge.problem) {
       logInfo('User-written problem not found. Embedding from issue body.');
 

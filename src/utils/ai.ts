@@ -100,7 +100,7 @@ export async function extractKnowledge(
 
 export async function getSimilarIssues(
   { title, body }: GithubIssue,
-  knowledges: EmbedeedKnowledge[],
+  issues: GithubIssue[],
 ): Promise<SimilarKnowledge[]> {
   const { minSimilarity, maxIssues } = getActionInput();
 

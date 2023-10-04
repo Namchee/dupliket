@@ -2,26 +2,19 @@ import { context } from '@actions/github';
 
 import dedent from 'dedent';
 
-import { createIssueComment, getRepositoryContent } from '@/utils/github';
+import { createIssueComment, getIssues } from '@/utils/github';
 
 import { getSimilarIssues } from '@/utils/ai';
-import { logInfo } from '@/utils/logger';
 
 import type { GithubIssue } from '@/types/github';
-import type { EmbedeedKnowledge } from '@/types/knowledge';
 
 export async function handleIssueCreatedEvent(): Promise<void> {
   const issue = context.payload.issue as GithubIssue;
 
-  const { content } = await getRepositoryContent();
-  const knowledges = JSON.parse(content) as EmbedeedKnowledge[];
-  if (!knowledges.length) {
-    logInfo('Existing knowledge not found');
+  let issues = await getIssues();
+  issues = issues.filter(i => i.number !== issue.number);
 
-    return;
-  }
-
-  const similarIssues = await getSimilarIssues(issue, knowledges);
+  const similarIssues = await getSimilarIssues(issue, issues);
   const count = similarIssues.length;
 
   if (count) {

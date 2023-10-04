@@ -3,11 +3,10 @@ import { getOctokit as newOctokit, context } from '@actions/github';
 import { getActionInput } from '@/utils/action';
 
 import type {
-  GithubError,
   GithubReaction,
-  RepositoryFile,
   Reaction,
   GithubComment,
+  GithubIssue,
 } from '@/types/github';
 
 interface IssueCommentQueryResult {
@@ -28,75 +27,10 @@ interface IssueCommentQueryResult {
   };
 }
 
-const KNOWLEDGE_PATH = '.github/issue_knowledge.json';
-
 function getOctokit() {
   const { accessToken } = getActionInput();
 
   return newOctokit(accessToken);
-}
-
-export async function getRepositoryContent(): Promise<RepositoryFile> {
-  const octokit = getOctokit();
-
-  const { owner, repo } = context.issue;
-
-  try {
-    const existingContent = (await octokit.rest.repos.getContent({
-      owner,
-      repo,
-      path: KNOWLEDGE_PATH,
-    })) as {
-      data: {
-        sha: string;
-        content: string;
-      };
-    };
-
-    const content = Buffer.from(
-      existingContent.data.content,
-      'base64',
-    ).toString('utf8');
-
-    return {
-      content,
-      sha: existingContent.data.sha,
-    };
-  } catch (err) {
-    const error = err as GithubError;
-
-    if (error.status === 404) {
-      return {
-        content: '',
-      };
-    }
-
-    throw error;
-  }
-}
-
-export async function updateRepositoryContent(
-  content: string,
-  sha?: string,
-): Promise<void> {
-  const { owner, repo } = context.issue;
-
-  const octokit = getOctokit();
-
-  const params = {
-    owner,
-    repo,
-    path: KNOWLEDGE_PATH,
-    content: Buffer.from(content).toString('base64'),
-    message: 'chore(duplikat): update knowledge',
-    sha: '',
-  };
-
-  if (sha) {
-    params.sha = sha;
-  }
-
-  await octokit.rest.repos.createOrUpdateFileContents(params);
 }
 
 export async function hasWriteAccess(username: string): Promise<boolean> {
@@ -115,6 +49,30 @@ export async function hasWriteAccess(username: string): Promise<boolean> {
   } catch (err) {
     return false;
   }
+}
+
+export async function getIssues(): Promise<GithubIssue[]> {
+  const octokit = getOctokit();
+
+  const { repo } = context;
+
+  const response = await octokit.paginate(octokit.rest.issues.listForRepo, {
+    owner: repo.owner,
+    repo: repo.repo,
+    per_page: 100,
+  });
+
+  return response
+    .filter(issue => !issue.pull_request)
+    .map(issue => ({
+      number: issue.number,
+      title: issue.title,
+      body: issue.body as string,
+      user: {
+        login: issue.user?.name as string,
+        type: issue.user?.type as 'User' | 'Bot',
+      },
+    }));
 }
 
 export async function getIssueComments(): Promise<GithubComment[]> {

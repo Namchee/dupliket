@@ -6,23 +6,46 @@ import type {
   GithubReaction,
   Reaction,
   GithubComment,
-  GithubIssue,
+  GithubReference,
+  GithubDiscussion,
 } from '@/types/github';
 
 interface IssueCommentQueryResult {
   repository: {
     issue: {
       comments: {
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string;
+        };
         nodes: {
           fullDatabaseId: number;
           body: string;
           author: {
             login: string;
-            type: 'User' | 'Bot';
           };
           isMinimized: boolean;
         }[];
       };
+    };
+  };
+}
+
+interface DiscussionQueryResult {
+  repository: {
+    discussions: {
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
+      };
+      nodes: {
+        url: string;
+        title: string;
+        body: string;
+        answer?: {
+          url: string;
+        };
+      }[];
     };
   };
 }
@@ -51,7 +74,7 @@ export async function hasWriteAccess(username: string): Promise<boolean> {
   }
 }
 
-export async function getIssues(): Promise<GithubIssue[]> {
+export async function getIssues(): Promise<GithubReference[]> {
   const octokit = getOctokit();
 
   const { repo } = context;
@@ -65,7 +88,7 @@ export async function getIssues(): Promise<GithubIssue[]> {
   return response
     .filter(issue => !issue.pull_request)
     .map(issue => ({
-      number: issue.number,
+      url: issue.url,
       title: issue.title,
       body: issue.body as string,
       user: {
@@ -75,17 +98,70 @@ export async function getIssues(): Promise<GithubIssue[]> {
     }));
 }
 
-export async function getIssueComments(): Promise<GithubComment[]> {
+export async function getDiscussions(
+  results: GithubDiscussion[] = [],
+  cursor?: string,
+): Promise<GithubDiscussion[]> {
+  const octokit = getOctokit();
+
+  const { repo } = context;
+
+  const result: DiscussionQueryResult = await octokit.graphql(
+    `query getDiscussions($owner: String!, $repo: String!, $cursor: String) {
+      repository(owner: $owner, name: $repo) {
+        discussions(first: 100, after: $cursor) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            url
+            title
+            body
+            answer {
+              url
+            }
+          }
+        }
+      }
+    }`,
+    {
+      owner: repo.owner,
+      repo: repo.repo,
+      cursor,
+    },
+  );
+
+  results.push(...result.repository.discussions.nodes);
+
+  if (result.repository.discussions.pageInfo.hasNextPage) {
+    results = await getDiscussions(
+      results,
+      result.repository.discussions.pageInfo.endCursor,
+    );
+  }
+
+  return results;
+}
+
+export async function getIssueComments(
+  results: GithubComment[] = [],
+  cursor?: string,
+): Promise<GithubComment[]> {
   const octokit = getOctokit();
 
   const { owner, repo, number } = context.issue;
 
   const result = (await octokit.graphql(
     `
-    query getComments($owner: String!, $repo: String!, $number: Int!, $amount: Int = 100) {
+    query getComments($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
       repository(owner: $owner, name: $repo) {
         issue(number: $number) {
-          comments(first: $amount) {
+          comments(first: 100, after: $cursor) {
+            pageInfo {
+              hasNextPage
+              endCursor
+            }
             nodes {
               fullDatabaseId
               body
@@ -103,17 +179,27 @@ export async function getIssueComments(): Promise<GithubComment[]> {
       owner,
       repo,
       number,
+      cursor,
     },
   )) as IssueCommentQueryResult;
 
-  const gqlComments = result.repository.issue.comments.nodes;
+  results.push(
+    ...result.repository.issue.comments.nodes.map(comment => ({
+      id: comment.fullDatabaseId,
+      user: comment.author.login,
+      body: comment.body,
+      isMinimized: comment.isMinimized,
+    })),
+  );
 
-  return gqlComments.map(comment => ({
-    id: comment.fullDatabaseId,
-    body: comment.body,
-    user: comment.author,
-    isMinimized: comment.isMinimized,
-  }));
+  if (result.repository.issue.comments.pageInfo.hasNextPage) {
+    results = await getIssueComments(
+      results,
+      result.repository.issue.comments.pageInfo.endCursor,
+    );
+  }
+
+  return results;
 }
 
 export async function createIssueComment(body: string): Promise<void> {

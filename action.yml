@@ -20,6 +20,10 @@ inputs:
     required: false
     description: Minimum similarity for issues to be considered as similar
     default: 0.9
+  discussions:
+    required: false
+    description: Include GitHub discussions when searching duplicates
+    default: false
 runs:
   using: 'node20'
   main: 'dist/main.js'

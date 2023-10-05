@@ -1,15 +1,15 @@
 export type Reaction = 'eyes' | '+1' | 'confused' | '-1';
 
-interface GithubUser {
-  login: string;
-  type: 'User' | 'Bot';
-}
-
-export interface GithubIssue {
-  number: number;
-  user: GithubUser;
+export interface GithubReference {
+  url: string;
   title: string;
   body: string;
+}
+
+export interface GithubDiscussion extends GithubReference {
+  answer?: {
+    url: string;
+  };
 }
 
 export interface RepositoryFile {
@@ -23,7 +23,7 @@ export interface GithubError {
 
 export interface GithubComment {
   id: number;
-  user: GithubUser;
+  user: string;
   body: string;
   isMinimized: boolean;
 }

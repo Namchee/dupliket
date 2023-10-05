@@ -12,14 +12,13 @@ import { cosineSimilarity } from '@/utils/meth';
 
 import { ModelException } from '@/exceptions/model';
 
-import type { GithubIssue, GithubComment } from '@/types/github';
-import type {
-  EmbedeedKnowledge,
-  Knowledge,
-  SimilarKnowledge,
-} from '@/types/knowledge';
+import type { GithubReference, GithubComment } from '@/types/github';
+import type { Knowledge, SimilarKnowledge } from '@/types/knowledge';
 
-function generatePrompt(issue: GithubIssue, comments: GithubComment[]): string {
+function generatePrompt(
+  issue: GithubReference,
+  comments: GithubComment[],
+): string {
   const header = `Identify the solution from the following GitHub issue and its comments. Present the solution as a suggestion in one sentence.
 
   Interaction between participants are separated by '---'. All interactions begins with an '@' followed with a username that can be used to distinguish issue participants. All interactions may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
@@ -65,7 +64,7 @@ export async function getTextEmbedding(text: string): Promise<number[]> {
 }
 
 export async function extractKnowledge(
-  issue: GithubIssue,
+  issue: GithubReference,
   comments: GithubComment[],
 ): Promise<string> {
   const { apiKey, model } = getActionInput();
@@ -99,8 +98,8 @@ export async function extractKnowledge(
 }
 
 export async function getSimilarIssues(
-  { title, body }: GithubIssue,
-  issues: GithubIssue[],
+  { title, body }: GithubReference,
+  issues: GithubReference[],
 ): Promise<SimilarKnowledge[]> {
   const { minSimilarity, maxIssues } = getActionInput();
 
@@ -111,7 +110,7 @@ export async function getSimilarIssues(
     `Title: ${title}\nBody: ${body}`,
   );
 
-  const similarity: (Knowledge & { similarity: number })[] = knowledges.map(
+  const similarity: (Knowledge & { similarity: number })[] = issues.map(
     knowledge => ({
       ...knowledge,
       similarity: cosineSimilarity(issueEmbedding, knowledge.embedding),

@@ -102,28 +102,6 @@ You can customize this actions with these following options (fill it on `with` s
 | `max_issues` | `false` | `3` | Maximum number of possibly similar issues to be displayed |
 | `min_similarity` | `false` | `0.85` | Minimum similarity for an issue to be considered as similar. Must be a floating point between `0.0` and `1.0` |
 
-## File Store
-
-Duplikat stores knowledges that are used for finding similar issues in a JSON file that is stored in `.github/issue_knowledge.json`. The knowledge are stored in the following format
-
-```json
-[
-  {
-    "issue_number": 1,
-    "embedding": [
-      0.001,
-      -0.0006,
-      0.000008,
-      // ...
-    ],
-    "solution": "Solution to the problem"
-  },
-  // ...
-]
-```
-
-> It is not recommended to edit the knowledge base manually, but can be useful when LLM is off-mark when determining the solution.
-
 ## License
 
 This project is licensed under the [MIT License](./LICENSE)

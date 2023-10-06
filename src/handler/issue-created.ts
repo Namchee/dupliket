@@ -1,43 +1,31 @@
 import { context } from '@actions/github';
 
-import dedent from 'dedent';
+import { createIssueComment, getDiscussions, getIssues } from '@/utils/github';
 
-import { createIssueComment, getIssues } from '@/utils/github';
+import { getActionInput } from '@/utils/action';
+import { getSimilarReferences } from '@/utils/ai';
+import { formatCommentBody } from '@/utils/format';
 
-import { getSimilarIssues } from '@/utils/ai';
-
-import type { GithubIssue } from '@/types/github';
+import { GithubReference, mapDiscussionsToReferences } from '@/types/github';
 
 export async function handleIssueCreatedEvent(): Promise<void> {
-  const issue = context.payload.issue as GithubIssue;
+  const { discussions } = getActionInput();
 
-  const allReferences = await getIssues();
+  const issue = context.payload.issue as unknown as GithubReference;
 
-  const similarIssues = await getSimilarIssues(issue, issues);
-  const count = similarIssues.length;
+  let references = await getIssues();
+  references = references.filter(ref => ref.url !== issue.url);
 
-  if (count) {
-    const solutions = similarIssues.map(
-      (issue, index) => `- ${issue.solution}[^${index + 1}]`,
-    );
-    const links = similarIssues.map(
-      (issue, index) =>
-        `[^${index + 1}]: #${issue.issue_number} (${(
-          issue.similarity * 100
-        ).toFixed(2)}%)`,
-    );
+  if (discussions) {
+    const allDiscussions = await getDiscussions();
 
-    const nominator = similarIssues.length === 1 ? 'is' : 'are';
-    const noun = similarIssues.length === 1 ? 'issue' : 'issues';
+    references.push(...mapDiscussionsToReferences(allDiscussions));
+  }
 
-    const outputBody = dedent`
-    Looks like there ${nominator} ${count} similar ${noun} to this one. Here is a list possible solutions based on those similar ${noun}:
-  
-    ${solutions.join('\n')}
-    ${links.join('\n')}
-  
-    <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
-    `;
+  const similarReferences = await getSimilarReferences(issue, references);
+
+  if (similarReferences.length) {
+    const outputBody = formatCommentBody(similarReferences);
 
     await createIssueComment(outputBody);
   }

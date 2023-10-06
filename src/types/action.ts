@@ -5,4 +5,6 @@ export interface Input {
   maxIssues: number;
   minSimilarity: number;
   discussions: boolean;
+  showSimilarity: boolean;
+  label: string;
 }

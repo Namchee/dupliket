@@ -7,7 +7,7 @@ inputs:
     description: GitHub Personal Access Token
   api_key:
     required: true
-    description: OpenAI 
+    description: OpenAI's API Key
   model:
     required: false
     description: Model to be used for calculating similarities
@@ -24,6 +24,14 @@ inputs:
     required: false
     description: Include GitHub discussions when searching duplicates
     default: false
+  show_similarity:
+    required: false
+    description: Print similarity value to the output
+    default: false
+  label:
+    required: false
+    description: Label to be added on potential duplicates
+    default: ''
 runs:
   using: 'node20'
   main: 'dist/main.js'

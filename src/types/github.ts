@@ -32,3 +32,13 @@ export interface GithubReaction {
   id: number;
   content: Reaction;
 }
+
+export function mapDiscussionsToReferences(
+  discussions: GithubDiscussion[],
+): GithubReference[] {
+  return discussions.map(discussion => ({
+    title: discussion.title,
+    body: discussion.body,
+    url: discussion.answer ? discussion.answer.url : discussion.url,
+  }));
+}

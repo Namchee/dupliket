@@ -49,7 +49,7 @@ export async function getEmbeddings(
   }));
 }
 
-export async function getSimilarIssues(
+export async function getSimilarReferences(
   source: GithubReference,
   references: GithubReference[],
 ): Promise<SimilarReference[]> {

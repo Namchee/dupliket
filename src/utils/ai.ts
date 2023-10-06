@@ -1,5 +1,3 @@
-import dedent from 'dedent';
-
 import OpenAI from 'openai';
 
 import stripMarkdown from 'strip-markdown';
@@ -10,38 +8,17 @@ import { remark } from 'remark';
 import { getActionInput } from '@/utils/action';
 import { cosineSimilarity } from '@/utils/meth';
 
-import { ModelException } from '@/exceptions/model';
+import type { GithubReference } from '@/types/github';
+import type { EmbedeedReference, SimilarReference } from '@/types/knowledge';
 
-import type { GithubReference, GithubComment } from '@/types/github';
-import type { Knowledge, SimilarKnowledge } from '@/types/knowledge';
+const _systemPrompt =
+  'You are a repository maintainer and an expert on analyzing and triaging issues.';
 
-function generatePrompt(
-  issue: GithubReference,
-  comments: GithubComment[],
-): string {
-  const header = `Identify the solution from the following GitHub issue and its comments. Present the solution as a suggestion in one sentence.
+const _UserPrompt = `Identify the solution from the following GitHub issue and its comments. Present the solution as a suggestion in one sentence.
 
-  Interaction between participants are separated by '---'. All interactions begins with an '@' followed with a username that can be used to distinguish issue participants. All interactions may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
+Interaction between participants are separated by '---'. All interactions begins with an '@' followed with a username that can be used to distinguish issue participants. All interactions may have a title or a link to a reproduction attempt that can be used to understand the context of the conversation.
 
-  If no solution are found or the issue has not been resolved, reply with 'Not Found'`;
-
-  const commentStr: string[] = [];
-
-  commentStr.push(`@${issue.user.login}: ${issue.body}`);
-  commentStr.push(
-    ...comments.map(comment => `@${comment.user.login}: ${comment.body}`),
-  );
-
-  return dedent`
-  ${header}
-
-  Title: ${issue.title}
-
-  ---
-  ${commentStr.join('\n---\n')}
-  ---
-  `;
-}
+If no solution are found or the issue has not been resolved, reply with 'Not Found'`;
 
 function sanitizeMarkdown(text: string): string {
   return remark()
@@ -51,81 +28,43 @@ function sanitizeMarkdown(text: string): string {
     .toString();
 }
 
-export async function getTextEmbedding(text: string): Promise<number[]> {
-  const { apiKey } = getActionInput();
+export async function getEmbeddings(
+  references: GithubReference[],
+): Promise<EmbedeedReference[]> {
+  const { apiKey, model } = getActionInput();
+
+  const inputs = references.map(reference =>
+    sanitizeMarkdown(`Title: ${reference.title}\nBody: ${reference.body}`),
+  );
 
   const openai = new OpenAI({ apiKey });
   const embeddings = await openai.embeddings.create({
-    input: sanitizeMarkdown(text),
-    model: 'text-embedding-ada-002',
-  });
-
-  return embeddings.data[0].embedding;
-}
-
-export async function extractKnowledge(
-  issue: GithubReference,
-  comments: GithubComment[],
-): Promise<string> {
-  const { apiKey, model } = getActionInput();
-
-  const openai = new OpenAI({ apiKey });
-  const prompt = generatePrompt(issue, comments);
-
-  const completion = await openai.chat.completions.create({
+    input: inputs,
     model,
-    temperature: 0,
-    messages: [
-      {
-        role: 'system',
-        content:
-          'You are a repository maintainer and an expert on analyzing and triaging issues.',
-      },
-      { role: 'user', content: prompt },
-    ],
   });
-  let result = completion.choices[0].message.content as string;
 
-  if (result.startsWith('Solution:')) {
-    result = result.replace('Solution:', '');
-  }
-
-  if (result.startsWith('Not Found')) {
-    throw new ModelException('Issue solution not found');
-  }
-
-  return result.trim();
+  return embeddings.data.map((embedding, idx) => ({
+    url: references[idx].url,
+    embedding: embedding.embedding,
+  }));
 }
 
 export async function getSimilarIssues(
-  { title, body }: GithubReference,
-  issues: GithubReference[],
-): Promise<SimilarKnowledge[]> {
+  source: GithubReference,
+  references: GithubReference[],
+): Promise<SimilarReference[]> {
   const { minSimilarity, maxIssues } = getActionInput();
 
-  title = sanitizeMarkdown(title);
-  body = sanitizeMarkdown(body);
+  const referenceEmbeddings = await getEmbeddings([source, ...references]);
+  const [target, ...rest] = referenceEmbeddings;
 
-  const issueEmbedding = await getTextEmbedding(
-    `Title: ${title}\nBody: ${body}`,
-  );
-
-  const similarity: (Knowledge & { similarity: number })[] = issues.map(
-    knowledge => ({
-      ...knowledge,
-      similarity: cosineSimilarity(issueEmbedding, knowledge.embedding),
-    }),
-  );
+  const similarity: SimilarReference[] = rest.map(reference => ({
+    url: reference.url,
+    similarity: cosineSimilarity(target.embedding, reference.embedding),
+  }));
 
   return similarity
-    .sort((a, b) => {
-      if (a.similarity !== b.similarity) {
-        return a.similarity - b.similarity;
-      }
-
-      return b.issue_number - a.issue_number;
-    })
-    .reverse()
+    .sort((a, b) => b.similarity - a.similarity)
     .filter(issue => issue.similarity >= minSimilarity)
     .slice(0, maxIssues);
 }

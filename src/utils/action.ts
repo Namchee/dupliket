@@ -13,7 +13,7 @@ export function getActionInput(): Input {
     const model = getInput('model');
     const maxIssues = Number(getInput('max_issues'));
     const minSimilarity = Number(getInput('min_similarity'));
-    const debug = getInput('debug') === 'true';
+    const discussions = getInput('discussions') === 'true';
 
     const newInput = {
       accessToken,
@@ -21,7 +21,7 @@ export function getActionInput(): Input {
       model,
       maxIssues,
       minSimilarity,
-      debug,
+      discussions,
     };
 
     validateInput(newInput);

@@ -4,5 +4,5 @@ export interface Input {
   model: string;
   maxIssues: number;
   minSimilarity: number;
-  debug: boolean;
+  discussions: boolean;
 }

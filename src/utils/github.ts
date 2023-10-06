@@ -10,23 +10,18 @@ import type {
   GithubDiscussion,
 } from '@/types/github';
 
-interface IssueCommentQueryResult {
+interface IssueQueryResult {
   repository: {
-    issue: {
-      comments: {
-        pageInfo: {
-          hasNextPage: boolean;
-          endCursor: string;
-        };
-        nodes: {
-          fullDatabaseId: number;
-          body: string;
-          author: {
-            login: string;
-          };
-          isMinimized: boolean;
-        }[];
+    issues: {
+      pageInfo: {
+        hasNextPage: boolean;
+        endCursor: string;
       };
+      nodes: {
+        url: string;
+        title: string;
+        body: string;
+      }[];
     };
   };
 }
@@ -46,6 +41,27 @@ interface DiscussionQueryResult {
           url: string;
         };
       }[];
+    };
+  };
+}
+
+interface IssueCommentQueryResult {
+  repository: {
+    issue: {
+      comments: {
+        pageInfo: {
+          hasNextPage: boolean;
+          endCursor: string;
+        };
+        nodes: {
+          fullDatabaseId: number;
+          body: string;
+          author: {
+            login: string;
+          };
+          isMinimized: boolean;
+        }[];
+      };
     };
   };
 }
@@ -74,28 +90,47 @@ export async function hasWriteAccess(username: string): Promise<boolean> {
   }
 }
 
-export async function getIssues(): Promise<GithubReference[]> {
+export async function getIssues(
+  results: GithubReference[] = [],
+  cursor?: string,
+): Promise<GithubReference[]> {
   const octokit = getOctokit();
 
   const { repo } = context;
 
-  const response = await octokit.paginate(octokit.rest.issues.listForRepo, {
-    owner: repo.owner,
-    repo: repo.repo,
-    per_page: 100,
-  });
+  const result: IssueQueryResult = await octokit.graphql(
+    `query getIssues($owner: String!, $repo: String!, $cursor: String) {
+      repository(owner: $owner, name: $repo) {
+        issues(first: 100, after: $cursor) {
+          pageInfo {
+            hasNextPage
+            endCursor
+          }
+          nodes {
+            url
+            title
+            body
+          }
+        }
+      }
+    }`,
+    {
+      owner: repo.owner,
+      repo: repo.repo,
+      cursor,
+    },
+  );
 
-  return response
-    .filter(issue => !issue.pull_request)
-    .map(issue => ({
-      url: issue.url,
-      title: issue.title,
-      body: issue.body as string,
-      user: {
-        login: issue.user?.name as string,
-        type: issue.user?.type as 'User' | 'Bot',
-      },
-    }));
+  results.push(...result.repository.issues.nodes);
+
+  if (result.repository.issues.pageInfo.hasNextPage) {
+    results = await getDiscussions(
+      results,
+      result.repository.issues.pageInfo.endCursor,
+    );
+  }
+
+  return results;
 }
 
 export async function getDiscussions(

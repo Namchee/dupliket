@@ -1,17 +1,9 @@
-export interface Knowledge {
-  issue_number: number;
-  solution: string;
-}
-
-export interface SimilarKnowledge extends Knowledge {
-  similarity: number;
-}
-
-export interface EmbedeedKnowledge extends Knowledge {
+export interface EmbedeedReference {
+  url: string;
   embedding: number[];
 }
 
-export interface UserKnowledge {
-  problem?: string;
-  solution?: string;
+export interface SimilarReference {
+  url: string;
+  similarity: number;
 }

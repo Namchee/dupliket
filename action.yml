@@ -1,5 +1,5 @@
-name: halp
-description: Detect duplicate issues and provide answers based on previous similar issues
+name: duplikat
+description: Detect duplicate issues and discussions
 author: Cristopher Namchee
 inputs:
   access_token:
@@ -10,8 +10,8 @@ inputs:
     description: OpenAI 
   model:
     required: false
-    description: Model to be used for identifying solutions from existing issues
-    default: gpt-3.5-turbo
+    description: Model to be used for calculating similarities
+    default: text-embedding-ada-002
   max_issues:
     required: false
     description: Maximum number of similar issues to be returned

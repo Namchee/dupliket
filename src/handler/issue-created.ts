@@ -11,8 +11,7 @@ import type { GithubIssue } from '@/types/github';
 export async function handleIssueCreatedEvent(): Promise<void> {
   const issue = context.payload.issue as GithubIssue;
 
-  let issues = await getIssues();
-  issues = issues.filter(i => i.number !== issue.number);
+  const allReferences = await getIssues();
 
   const similarIssues = await getSimilarIssues(issue, issues);
   const count = similarIssues.length;

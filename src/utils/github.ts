@@ -3,8 +3,6 @@ import { getOctokit as newOctokit, context } from '@actions/github';
 import { getActionInput } from '@/utils/action';
 
 import type {
-  GithubReaction,
-  Reaction,
   GithubComment,
   GithubReference,
   GithubDiscussion,
@@ -237,49 +235,30 @@ export async function getIssueComments(
   return results;
 }
 
-export async function createIssueComment(body: string): Promise<void> {
+export async function createIssueComment(body: string): Promise<number> {
   const octokit = getOctokit();
 
   const { owner, repo, number } = context.issue;
 
-  await octokit.rest.issues.createComment({
+  const comment = await octokit.rest.issues.createComment({
     body,
     issue_number: number,
     owner,
     repo,
   });
+
+  return comment.data.id;
 }
 
-export async function createReaction(
-  commentID: number,
-  reaction: Reaction,
-): Promise<GithubReaction> {
+export async function addLabelToIssue(label: string): Promise<void> {
   const octokit = getOctokit();
 
-  const { owner, repo } = context.issue;
+  const { owner, repo, number } = context.issue;
 
-  const { data } = await octokit.rest.reactions.createForIssueComment({
+  await octokit.rest.issues.addLabels({
     owner,
     repo,
-    comment_id: commentID,
-    content: reaction,
-  });
-
-  return data as unknown as GithubReaction;
-}
-
-export async function deleteReaction(
-  commentID: number,
-  reactionID: number,
-): Promise<void> {
-  const octokit = getOctokit();
-
-  const { owner, repo } = context.issue;
-
-  await octokit.rest.reactions.deleteForIssueComment({
-    owner,
-    repo,
-    comment_id: commentID,
-    reaction_id: reactionID,
+    issue_number: number,
+    labels: [label],
   });
 }

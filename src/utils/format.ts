@@ -1,7 +1,8 @@
 import dedent from 'dedent';
 
+import { getActionInput } from '@/utils/action';
+
 import { SimilarReference } from '@/types/knowledge';
-import { getActionInput } from './action';
 
 export function formatCommentBody(references: SimilarReference[]) {
   const { showSimilarity, discussions } = getActionInput();

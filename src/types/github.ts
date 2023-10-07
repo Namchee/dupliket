@@ -1,5 +1,3 @@
-export type Reaction = 'eyes' | '+1' | 'confused' | '-1';
-
 export interface GithubReference {
   url: string;
   title: string;
@@ -12,25 +10,11 @@ export interface GithubDiscussion extends GithubReference {
   };
 }
 
-export interface RepositoryFile {
-  content: string;
-  sha?: string;
-}
-
-export interface GithubError {
-  status: number;
-}
-
 export interface GithubComment {
   id: number;
   user: string;
   body: string;
   isMinimized: boolean;
-}
-
-export interface GithubReaction {
-  id: number;
-  content: Reaction;
 }
 
 export function mapDiscussionsToReferences(

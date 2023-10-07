@@ -14,7 +14,7 @@ import { logInfo } from '@/utils/logger';
 
 import { GithubReference, mapDiscussionsToReferences } from '@/types/github';
 
-export async function handleIssueCreatedEvent(): Promise<void> {
+export async function handleIssueOpenedEvent(): Promise<void> {
   const { discussions, label } = getActionInput();
 
   const issue = context.payload.issue as unknown as GithubReference;

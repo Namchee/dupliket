@@ -3,10 +3,12 @@ import { context } from '@actions/github';
 
 import { ModelException } from '@/exceptions/model';
 
-import { handleIssueCreatedEvent } from '@/handler/issue-created';
+import { handleIssueOpenedEvent } from '@/handler/issue-opened';
+import { handleDiscussionCreatedEvent } from './handler/discussion-created';
 
 const HANDLER_MAP = {
-  issues: handleIssueCreatedEvent,
+  issues: handleIssueOpenedEvent,
+  discussion: handleDiscussionCreatedEvent,
 };
 
 async function run(): Promise<void> {

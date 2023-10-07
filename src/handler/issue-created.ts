@@ -37,7 +37,7 @@ export async function handleIssueCreatedEvent(): Promise<void> {
   logInfo(`Found ${similarReferences.length} similar references`);
 
   if (similarReferences.length) {
-    const outputBody = formatCommentBody(similarReferences);
+    const outputBody = formatCommentBody(similarReferences, 'issue');
 
     const operations: Promise<unknown>[] = [createIssueComment(outputBody)];
     if (label) {

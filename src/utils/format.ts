@@ -4,7 +4,10 @@ import { getActionInput } from '@/utils/action';
 
 import { SimilarReference } from '@/types/knowledge';
 
-export function formatCommentBody(references: SimilarReference[]) {
+export function formatCommentBody(
+  references: SimilarReference[],
+  type: 'discussion' | 'issue',
+) {
   const { showSimilarity, discussions } = getActionInput();
 
   const count = references.length;
@@ -45,6 +48,8 @@ export function formatCommentBody(references: SimilarReference[]) {
   Looks like there ${nominator} ${count} similar ${noun} to this one:
 
   ${solutions.join('\n')}
+
+  It's possible that one of these ${noun} is already addressing your problem. If so, please close this ${type} and move the discussion to the existing ${noun}.
 
   <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
 

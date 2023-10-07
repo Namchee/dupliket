@@ -94,17 +94,19 @@ https://help.openai.com/en/articles/5112595-best-practices-for-api-key-safety
 `,after:`
 `,now:{line:1,column:1},lineShift:0});return a&&a.charCodeAt(a.length-1)!==10&&a.charCodeAt(a.length-1)!==13&&(a+=`
 `),a;function n(i){return r.stack.push(i),o;function o(){r.stack.pop()}}}function Bw(e){throw new Error("Cannot handle value `"+e+"`, expected node")}function Vw(e){throw new Error("Cannot handle unknown node `"+e.type+"`")}function Uw(e,t){if(e.type==="definition"&&e.type===t.type)return 0}function jw(e,t){return tn(e,this,t)}function zw(e,t){return oo(e,this,t)}function Mw(e,t){return si(this,e,t)}function vo(e){Object.assign(this,{Compiler:r=>{let a=this.data("settings");return Zd(r,Object.assign({},a,e,{extensions:this.data("toMarkdownExtensions")||[]}))}})}var bc=Bd().use(fo).use(vo).freeze();function Hw(e,t){let r=0;for(let a=0;a<Math.min(e.length,t.length);a++)r+=e[a]*t[a];return r}function yc(e){return Math.sqrt(e.map(t=>t*t).reduce((t,r)=>t+r))}function _c(e,t){return Hw(e,t)/(yc(e)*yc(t))}function $w(e){return bc().use(xd).use(Us).processSync(e).toString()}async function Ww(e){let{apiKey:t,model:r}=Ot(),a=e.map(o=>$w(`Title: ${o.title}
-Body: ${o.body}`));return(await new R6({apiKey:t}).embeddings.create({input:a,model:r})).data.map((o,p)=>({url:e[p].url,embedding:o.embedding}))}async function Tc(e,t){let{minSimilarity:r,maxIssues:a}=Ot(),n=await Ww([e,...t]),[i,...o]=n;return o.map(s=>({url:s.url,similarity:_c(i.embedding,s.embedding)})).sort((s,d)=>d.similarity-s.similarity).filter(s=>s.similarity>=r).slice(0,a)}var Sc=fe(Ec());function kc(e){let{showSimilarity:t,discussions:r}=Ot(),a=e.length,n=[],i=[];for(let[d,l]of e.entries()){let u=`- ${l.url}`;t&&(u+=` [^${d+1}]`),n.push(u),t&&i.push(`[^${d+1}]: ${(l.similarity*100).toFixed(2)}%`)}let o=a===1?"is":"are",p=["issue"];r&&p.push("discussion"),a>1&&p.forEach((d,l)=>{p[l]=d+"s"});let s=p.join(" and ");return Sc.default`
-  Looks like there ${o} ${a} similar ${s} to this one:
-
-  ${n.join(`
-`)}
-
-  <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
+Body: ${o.body}`));return(await new R6({apiKey:t}).embeddings.create({input:a,model:r})).data.map((o,p)=>({url:e[p].url,embedding:o.embedding}))}async function Tc(e,t){let{minSimilarity:r,maxIssues:a}=Ot(),n=await Ww([e,...t]),[i,...o]=n;return o.map(s=>({url:s.url,similarity:_c(i.embedding,s.embedding)})).sort((s,d)=>d.similarity-s.similarity).filter(s=>s.similarity>=r).slice(0,a)}var Sc=fe(Ec());function kc(e,t){let{showSimilarity:r,discussions:a}=Ot(),n=e.length,i=[],o=[];for(let[l,u]of e.entries()){let m=`- ${u.url}`;r&&(m+=` [^${l+1}]`),i.push(m),r&&o.push(`[^${l+1}]: ${(u.similarity*100).toFixed(2)}%`)}let p=n===1?"is":"are",s=["issue"];a&&s.push("discussion"),n>1&&s.forEach((l,u)=>{s[u]=l+"s"});let d=s.join(" and ");return Sc.default`
+  Looks like there ${p} ${n} similar ${d} to this one:
 
   ${i.join(`
 `)}
-  `.trim()}var xc=fe(mn());function bo(e){(0,xc.info)(`${new Date().toISOString()} [Info] ${e}`)}function Ac(e){return e.map(t=>({title:t.title,body:t.body,url:t.answer?t.answer.url:t.url}))}async function Cc(){let{discussions:e,label:t}=Ot(),r=Pc.context.payload.issue,a=await Yu();if(a=a.filter(i=>i.url!==r.url),bo(`Found ${a.length} issues from repository`),e){let i=await Vi();bo(`Found ${i} discussions from repository`),a.push(...Ac(i))}let n=await Tc(r,a);if(bo(`Found ${n.length} similar references`),n.length){let i=kc(n),o=[Zu(i)];t&&o.push(e0(t)),await Promise.all(o)}}var Dc={issues:Cc};async function Qw(){try{let e=Rc.context.eventName;if(e in Dc){let t=Dc[e];await t()}}catch(e){let t=e;if(t instanceof Gi)return(0,yo.info)(t.message);(0,yo.setFailed)(t)}}Qw();
+
+  It's possible that one of these ${d} is already addressing your problem. If so, please close this ${t} and move the discussion to the existing ${d}.
+
+  <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
+
+  ${o.join(`
+`)}
+  `.trim()}var xc=fe(mn());function bo(e){(0,xc.info)(`${new Date().toISOString()} [Info] ${e}`)}function Ac(e){return e.map(t=>({title:t.title,body:t.body,url:t.answer?t.answer.url:t.url}))}async function Cc(){let{discussions:e,label:t}=Ot(),r=Pc.context.payload.issue,a=await Yu();if(a=a.filter(i=>i.url!==r.url),bo(`Found ${a.length} issues from repository`),e){let i=await Vi();bo(`Found ${i} discussions from repository`),a.push(...Ac(i))}let n=await Tc(r,a);if(bo(`Found ${n.length} similar references`),n.length){let i=kc(n,"issue"),o=[Zu(i)];t&&o.push(e0(t)),await Promise.all(o)}}var Dc={issues:Cc};async function Qw(){try{let e=Rc.context.eventName;if(e in Dc){let t=Dc[e];await t()}}catch(e){let t=e;if(t instanceof Gi)return(0,yo.info)(t.message);(0,yo.setFailed)(t)}}Qw();
 /*! Bundled license information:
 
 is-plain-object/dist/is-plain-object.js:

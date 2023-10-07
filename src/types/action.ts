@@ -7,4 +7,5 @@ export interface Input {
   discussions: boolean;
   showSimilarity: boolean;
   label: string;
+  template: string;
 }

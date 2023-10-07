@@ -32,6 +32,10 @@ inputs:
     required: false
     description: Label to be added on potential duplicates
     default: ''
+  template:
+    required: false
+    description: Message template to be used on duplicate issue or discussion. Uses mustache templating.
+    default: ''
 runs:
   using: 'node20'
   main: 'dist/main.js'

@@ -16,6 +16,7 @@ export function getActionInput(): Input {
     const showSimilarity = getInput('show_similarity') === 'true';
     const label = getInput('label');
     const discussions = getInput('discussions') === 'true';
+    const template = getInput('template');
 
     const newInput = {
       accessToken,
@@ -26,6 +27,7 @@ export function getActionInput(): Input {
       discussions,
       showSimilarity,
       label,
+      template,
     };
 
     validateInput(newInput);

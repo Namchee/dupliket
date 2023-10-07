@@ -1,34 +1,30 @@
 import dedent from 'dedent';
+import mustache from 'mustache';
 
 import { getActionInput } from '@/utils/action';
 
 import { SimilarReference } from '@/types/knowledge';
+import { context } from '@actions/github';
 
 export function formatCommentBody(
-  references: SimilarReference[],
+  similars: SimilarReference[],
   type: 'discussion' | 'issue',
-) {
-  const { showSimilarity, discussions } = getActionInput();
+): string {
+  const { template } = getActionInput();
 
-  const count = references.length;
+  return template
+    ? applyCustomTemplate(template, similars)
+    : applyDefaultTemplate(similars, type);
+}
 
-  const solutions: string[] = [];
-  const similarities: string[] = [];
+function applyDefaultTemplate(
+  similars: SimilarReference[],
+  type: 'issue' | 'discussion',
+): string {
+  const { discussions } = getActionInput();
+  const count = similars.length;
 
-  for (const [index, reference] of references.entries()) {
-    let refUrl = `- ${reference.url}`;
-    if (showSimilarity) {
-      refUrl += ` [^${index + 1}]`;
-    }
-
-    solutions.push(refUrl);
-
-    if (showSimilarity) {
-      similarities.push(
-        `[^${index + 1}]: ${(reference.similarity * 100).toFixed(2)}%`,
-      );
-    }
-  }
+  const [ref, similarities] = formatReferences(similars);
 
   const nominator = count === 1 ? 'is' : 'are';
   const nouns = ['issue'];
@@ -47,12 +43,49 @@ export function formatCommentBody(
   return dedent`
   Looks like there ${nominator} ${count} similar ${noun} to this one:
 
-  ${solutions.join('\n')}
+  ${ref}
 
-  It's possible that one of these ${noun} is already addressing your problem. If so, please close this ${type} and move the discussion to the existing ${noun}.
+  It's possible that one of these ${noun} is already addressing your problem. If so, please close this ${type} and move the discussion to existing ${noun}.
 
   <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
 
-  ${similarities.join('\n')}
+  ${similarities}
   `.trim();
+}
+
+function applyCustomTemplate(
+  template: string,
+  similars: SimilarReference[],
+): string {
+  const replacer = {
+    user: context.actor,
+    count: similars.length,
+    references: formatReferences(similars),
+  };
+
+  return mustache.render(template, replacer);
+}
+
+function formatReferences(similars: SimilarReference[]): [string, string] {
+  const { showSimilarity } = getActionInput();
+
+  const solutions: string[] = [];
+  const similarities: string[] = [];
+
+  for (const [index, reference] of similars.entries()) {
+    let refUrl = `- ${reference.url}`;
+    if (showSimilarity) {
+      refUrl += ` [^${index + 1}]`;
+    }
+
+    solutions.push(refUrl);
+
+    if (showSimilarity) {
+      similarities.push(
+        `[^${index + 1}]: ${(reference.similarity * 100).toFixed(2)}%`,
+      );
+    }
+  }
+
+  return [solutions.join('\n'), similarities.join('\n')];
 }

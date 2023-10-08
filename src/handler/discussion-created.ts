@@ -14,30 +14,28 @@ import { logInfo } from '@/utils/logger';
 import { GithubReference, mapDiscussionsToReferences } from '@/types/github';
 
 export async function handleDiscussionCreatedEvent() {
-  const discussion = context.payload.discussion as GithubReference;
-
-  console.log(discussion);
-}
-
-async function _temp() {
   const { discussions, label } = getActionInput();
 
-  const issue = context.payload.discussion as GithubReference;
+  const { discussion } = context.payload;
+  const reference: GithubReference = {
+    url: discussion.html_url,
+    title: discussion.title,
+    body: discussion.body,
+  };
 
   let references = await getIssues();
-  references = references.filter(ref => ref.url !== issue.url);
-
   logInfo(`Found ${references.length} issues from repository`);
 
   if (discussions) {
     const allDiscussions = await getDiscussions();
-
     logInfo(`Found ${allDiscussions} discussions from repository`);
 
     references.push(...mapDiscussionsToReferences(allDiscussions));
   }
 
-  const similarReferences = await getSimilarReferences(issue, references);
+  references = references.filter(ref => ref.url !== reference.url);
+
+  const similarReferences = await getSimilarReferences(reference, references);
 
   logInfo(`Found ${similarReferences.length} similar references`);
 

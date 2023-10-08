@@ -1,7 +1,5 @@
-import { setFailed, info } from '@actions/core';
+import { setFailed } from '@actions/core';
 import { context } from '@actions/github';
-
-import { ModelException } from '@/exceptions/model';
 
 import { handleIssueOpenedEvent } from '@/handler/issue-opened';
 import { handleDiscussionCreatedEvent } from './handler/discussion-created';
@@ -22,10 +20,6 @@ async function run(): Promise<void> {
     }
   } catch (err) {
     const error = err as Error;
-
-    if (error instanceof ModelException) {
-      return info(error.message);
-    }
 
     setFailed(error);
   }

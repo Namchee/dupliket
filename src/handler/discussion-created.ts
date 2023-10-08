@@ -14,9 +14,15 @@ import { logInfo } from '@/utils/logger';
 import { GithubReference, mapDiscussionsToReferences } from '@/types/github';
 
 export async function handleDiscussionCreatedEvent() {
+  const discussion = context.payload.discussion as GithubReference;
+
+  console.log(discussion);
+}
+
+async function _temp() {
   const { discussions, label } = getActionInput();
 
-  const issue = context.payload.issue as unknown as GithubReference;
+  const issue = context.payload.discussion as GithubReference;
 
   let references = await getIssues();
   references = references.filter(ref => ref.url !== issue.url);

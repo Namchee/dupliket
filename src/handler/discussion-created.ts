@@ -6,8 +6,8 @@ import { formatCommentBody } from '@/utils/format';
 import {
   getIssues,
   getDiscussions,
-  createIssueComment,
   addLabelToIssue,
+  createDiscussionComment,
 } from '@/utils/github';
 import { logInfo } from '@/utils/logger';
 
@@ -42,7 +42,9 @@ export async function handleDiscussionCreatedEvent() {
   if (similarReferences.length) {
     const outputBody = formatCommentBody(similarReferences, 'issue');
 
-    const operations: Promise<unknown>[] = [createIssueComment(outputBody)];
+    const operations: Promise<unknown>[] = [
+      createDiscussionComment(outputBody),
+    ];
     if (label) {
       operations.push(addLabelToIssue(label));
     }

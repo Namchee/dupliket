@@ -64,6 +64,12 @@ interface IssueCommentQueryResult {
   };
 }
 
+interface DiscussionCommentQueryResult {
+  comment: {
+    databaseId: number;
+  };
+}
+
 function getOctokit() {
   const { accessToken } = getActionInput();
 
@@ -248,6 +254,33 @@ export async function createIssueComment(body: string): Promise<number> {
   });
 
   return comment.data.id;
+}
+
+export async function createDiscussionComment(body: string): Promise<number> {
+  const octokit = getOctokit();
+
+  const { discussion } = context.payload;
+
+  const result: DiscussionCommentQueryResult = await octokit.graphql(
+    `
+    mutation addDiscussionComment($input: AddDiscussionCommentInput!) {
+      addDiscussionComment(input: $input) {
+        comment {
+          databaseId
+        }
+      }
+    }
+    `,
+    {
+      input: {
+        discussionId: discussion.id,
+        body,
+        replyTold: discussion.node_id,
+      },
+    },
+  );
+
+  return result.comment.databaseId;
 }
 
 export async function addLabelToIssue(label: string): Promise<void> {

@@ -273,7 +273,7 @@ export async function createDiscussionComment(body: string): Promise<number> {
     `,
     {
       input: {
-        discussionId: discussion.id,
+        discussionId: discussion.node_id,
         body,
         // ReplyToId: discussion.node_id,
       },

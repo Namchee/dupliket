@@ -275,7 +275,7 @@ export async function createDiscussionComment(body: string): Promise<number> {
       input: {
         discussionId: discussion.id,
         body,
-        replyTold: discussion.node_id,
+        replyToId: discussion.node_id,
       },
     },
   );

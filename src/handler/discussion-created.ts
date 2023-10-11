@@ -40,7 +40,7 @@ export async function handleDiscussionCreatedEvent() {
   logInfo(`Found ${similarReferences.length} similar references`);
 
   if (similarReferences.length) {
-    const outputBody = formatCommentBody(similarReferences, 'issue');
+    const outputBody = formatCommentBody(similarReferences, 'discussion');
 
     const operations: Promise<unknown>[] = [
       createDiscussionComment(outputBody),

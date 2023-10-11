@@ -47,7 +47,7 @@ function applyDefaultTemplate(
 
   It's possible that one of these ${noun} is already addressing your problem. If so, please close this ${type} and move the discussion to existing ${noun}.
 
-  <sub>This comment is created by Duplikat, your friendly GitHub Action issue triaging bot.</sub>
+  <sub>This comment is created by Duplikat, your friendly GitHub Action issue and discussion management bot.</sub>
 
   ${similarities}
   `.trim();

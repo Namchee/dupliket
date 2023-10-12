@@ -63,6 +63,9 @@ function applyCustomTemplate(
     references: formatReferences(similars),
   };
 
+  // Disable value escaping
+  mustache.escape = (text: string) => text;
+
   return mustache.render(template, replacer);
 }
 

@@ -29,6 +29,7 @@ export async function handleIssueOpenedEvent(): Promise<void> {
     references.push(...mapDiscussionsToReferences(allDiscussions));
   }
 
+  console.log(reference.url);
   references = references.filter(ref => ref.url !== reference.url);
 
   const similarReferences = await getSimilarReferences(reference, references);

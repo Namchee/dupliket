@@ -17,9 +17,4 @@ jobs:
           access_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.OPENAI_KEY }}
           discussions: true
-          template: |
-            Hi {{ user }},
-
-            Thanks for reporting an issue! However, it seems like there are {{ count }} issue(s) that are similar to yours:
-          
-            {{ references }}
+          label: chore:possible-duplicate

@@ -23,4 +23,3 @@ jobs:
             Thanks for reporting an issue! However, it seems like there are {{ count }} issue(s) that are similar to yours:
           
             {{ references }}
-          show_similarity: true

@@ -28,7 +28,7 @@ export async function handleDiscussionCreatedEvent() {
 
   if (discussions) {
     const allDiscussions = await getDiscussions();
-    logInfo(`Found ${allDiscussions} discussions from repository`);
+    logInfo(`Found ${allDiscussions.length} discussions from repository`);
 
     references.push(...mapDiscussionsToReferences(allDiscussions));
   }

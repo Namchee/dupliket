@@ -17,14 +17,20 @@ import { GithubReference, mapDiscussionsToReferences } from '@/types/github';
 export async function handleIssueOpenedEvent(): Promise<void> {
   const { discussions, label } = getActionInput();
 
-  const reference = context.payload.issue as unknown as GithubReference;
+  // TODO: implement better type than any
+  const issue = context.payload.issue as any;
+  const reference: GithubReference = {
+    url: issue.html_url,
+    title: issue.title,
+    body: issue.body,
+  };
 
   let references = await getIssues();
   logInfo(`Found ${references.length} issues from repository`);
 
   if (discussions) {
     const allDiscussions = await getDiscussions();
-    logInfo(`Found ${allDiscussions} discussions from repository`);
+    logInfo(`Found ${allDiscussions.length} discussions from repository`);
 
     references.push(...mapDiscussionsToReferences(allDiscussions));
   }

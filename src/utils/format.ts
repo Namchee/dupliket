@@ -57,11 +57,16 @@ function applyCustomTemplate(
   template: string,
   similars: SimilarReference[],
 ): string {
+  const [solutions, similarities] = formatReferences(similars);
   const replacer = {
     user: `@${context.actor}`,
     count: similars.length,
-    references: formatReferences(similars),
+    references: solutions,
   };
+
+  if (similarities) {
+    template += '\n\n' + similarities;
+  }
 
   // Disable value escaping
   mustache.escape = (text: string) => text;

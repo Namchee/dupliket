@@ -16,6 +16,7 @@ jobs:
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.OPENAI_KEY }}
+          discussions: true
           template: |
             Hi {{ user }},
 

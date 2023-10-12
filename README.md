@@ -40,7 +40,7 @@ You can customize this actions with these following options (fill it on `with` s
 | `min_similarity` | `false` | `0.9` | Minimum similarity for an issue or discussion to be considered as similar. Must be a floating point between `0.0` and `1.0` |
 | `show_similarity` | `false` | `false` | Include similarity percentage as [footnote](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes) |
 | `label` | `false` |  | Label to be applied when an issue or discussion has duplicates. Fill with an empty string to not apply any labels |
-| `template` | `false` | | Apply a custom message when an issue or discussion has duplicates. See section [customizing message](#customizing-message) for more detailed information on how to use this field.
+| `template` | `false` |  | Apply a custom message when an issue or discussion has duplicates. See section [customizing message](#customizing-message) for more detailed information on how to use this field.
 
 ### Customizing Message
 
@@ -55,6 +55,28 @@ Below are the list of replacable values that you can use in your custom message:
 | `user` | Username that triggers the event |
 | `count` | Number of similar issues and discussions |
 | `references` | List of issue and discussion links |
+
+For example, given the below template:
+
+```
+Hi {{ user }},
+
+Thanks for reporting an issue! However, it seems like there are {{ count }} issue(s) that are similar to yours:
+
+{{ references }}
+```
+
+the action may reply with the following comment
+
+```
+Hi @Namchee,
+
+Thanks for reporting an issue! However, it seems like there are 3 issue(s) that are similar to yours:
+
+- https://github.com/Namchee/duplikat/issues/49
+- https://github.com/Namchee/duplikat/issues/48
+
+```
 
 ## License
 

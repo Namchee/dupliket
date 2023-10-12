@@ -58,7 +58,7 @@ function applyCustomTemplate(
   similars: SimilarReference[],
 ): string {
   const replacer = {
-    user: context.actor,
+    user: `@${context.actor}`,
     count: similars.length,
     references: formatReferences(similars),
   };

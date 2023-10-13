@@ -17,4 +17,4 @@ jobs:
           api_key: ${{ secrets.OPENAI_KEY }}
           label: chore:possible-duplicate
           discussions: true
-          max_issues: 15
+          max_issues: 3

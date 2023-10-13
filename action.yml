@@ -23,7 +23,7 @@ inputs:
   discussions:
     required: false
     description: Include GitHub discussions when searching duplicates
-    default: false
+    default: true
   show_similarity:
     required: false
     description: Print similarity value to the output

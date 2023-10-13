@@ -39,6 +39,7 @@ You can customize this actions with these following options (fill it on `with` s
 | `max_issues` | `false` | `3` | Maximum number of possibly similar issues and discussions to be displayed |
 | `min_similarity` | `false` | `0.9` | Minimum similarity for an issue or discussion to be considered as similar. Must be a floating point between `0.0` and `1.0` |
 | `show_similarity` | `false` | `false` | Include similarity percentage as [footnote](https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#footnotes) |
+| `discussions` | `false` | `true` | Include [discussions](https://github.com/features/discussions) when searching for similar references |
 | `label` | `false` |  | Label to be applied when an issue or discussion has duplicates. Fill with an empty string to not apply any labels |
 | `template` | `false` |  | Apply a custom message when an issue or discussion has duplicates. See section [customizing message](#customizing-message) for more detailed information on how to use this field.
 

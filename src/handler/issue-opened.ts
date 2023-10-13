@@ -17,8 +17,7 @@ import { GithubReference, mapDiscussionsToReferences } from '@/types/github';
 export async function handleIssueOpenedEvent(): Promise<void> {
   const { discussions, label } = getActionInput();
 
-  // TODO: implement better type than any
-  const issue = context.payload.issue as any;
+  const issue = context.payload.issue as Record<string, string>;
   const reference: GithubReference = {
     url: issue.html_url,
     title: issue.title,

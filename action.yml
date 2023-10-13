@@ -1,5 +1,5 @@
-name: duplikat
-description: Detect duplicate issues and discussions
+name: Duplikat
+description: Triage issues and discussions efficiently by detecting duplicates and create a reference for them
 author: Cristopher Namchee
 inputs:
   access_token:

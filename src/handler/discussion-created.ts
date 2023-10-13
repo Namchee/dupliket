@@ -6,7 +6,6 @@ import { formatCommentBody } from '@/utils/format';
 import {
   getIssues,
   getDiscussions,
-  addLabelToIssue,
   createDiscussionComment,
 } from '@/utils/github';
 import { logInfo } from '@/utils/logger';
@@ -14,7 +13,7 @@ import { logInfo } from '@/utils/logger';
 import { GithubReference, mapDiscussionsToReferences } from '@/types/github';
 
 export async function handleDiscussionCreatedEvent() {
-  const { discussions, label } = getActionInput();
+  const { discussions } = getActionInput();
 
   const { discussion } = context.payload;
   const reference: GithubReference = {
@@ -45,9 +44,6 @@ export async function handleDiscussionCreatedEvent() {
     const operations: Promise<unknown>[] = [
       createDiscussionComment(outputBody),
     ];
-    if (label) {
-      operations.push(addLabelToIssue(label));
-    }
 
     await Promise.all(operations);
   }

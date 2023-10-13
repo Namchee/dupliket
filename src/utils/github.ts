@@ -3,95 +3,21 @@ import { getOctokit as newOctokit, context } from '@actions/github';
 import { getActionInput } from '@/utils/action';
 
 import type {
+  GithubLabel,
   GithubComment,
   GithubReference,
   GithubDiscussion,
+  DiscussionCommentQueryResult,
+  DiscussionQueryResult,
+  IssueCommentQueryResult,
+  IssueQueryResult,
+  LabelQueryResult,
 } from '@/types/github';
-
-interface IssueQueryResult {
-  repository: {
-    issues: {
-      pageInfo: {
-        hasNextPage: boolean;
-        endCursor: string;
-      };
-      nodes: {
-        url: string;
-        title: string;
-        body: string;
-      }[];
-    };
-  };
-}
-
-interface DiscussionQueryResult {
-  repository: {
-    discussions: {
-      pageInfo: {
-        hasNextPage: boolean;
-        endCursor: string;
-      };
-      nodes: {
-        url: string;
-        title: string;
-        body: string;
-        answer?: {
-          url: string;
-        };
-      }[];
-    };
-  };
-}
-
-interface IssueCommentQueryResult {
-  repository: {
-    issue: {
-      comments: {
-        pageInfo: {
-          hasNextPage: boolean;
-          endCursor: string;
-        };
-        nodes: {
-          fullDatabaseId: number;
-          body: string;
-          author: {
-            login: string;
-          };
-          isMinimized: boolean;
-        }[];
-      };
-    };
-  };
-}
-
-interface DiscussionCommentQueryResult {
-  comment: {
-    databaseId: number;
-  };
-}
 
 function getOctokit() {
   const { accessToken } = getActionInput();
 
   return newOctokit(accessToken);
-}
-
-export async function hasWriteAccess(username: string): Promise<boolean> {
-  const octokit = getOctokit();
-
-  const { owner, repo } = context.issue;
-
-  try {
-    const result = await octokit.rest.repos.checkCollaborator({
-      owner,
-      repo,
-      username,
-    });
-
-    return result.status === 204;
-  } catch (err) {
-    return false;
-  }
 }
 
 export async function getIssues(
@@ -191,7 +117,7 @@ export async function getIssueComments(
 
   const { owner, repo, number } = context.issue;
 
-  const result = (await octokit.graphql(
+  const result: IssueCommentQueryResult = await octokit.graphql(
     `
     query getComments($owner: String!, $repo: String!, $number: Int!, $cursor: String) {
       repository(owner: $owner, name: $repo) {
@@ -220,7 +146,7 @@ export async function getIssueComments(
       number,
       cursor,
     },
-  )) as IssueCommentQueryResult;
+  );
 
   results.push(
     ...result.repository.issue.comments.nodes.map(comment => ({
@@ -280,6 +206,46 @@ export async function createDiscussionComment(body: string): Promise<number> {
   );
 
   return result.comment.databaseId;
+}
+
+async function _getLabels(results: GithubLabel[] = [], cursor?: string) {
+  const octokit = getOctokit();
+
+  const { owner, repo } = context.repo;
+
+  const result: LabelQueryResult = await octokit.graphql(
+    `
+    query getLabels($owner: String!, $repo: String!, $cursor: String) {
+      repository(owner: $owner, repo: $repo) {
+        labels(first: 100, after: $cursor) {
+          pageInfo {
+            endCursor
+            hasNextPage
+          }
+          nodes {
+            id
+            name
+          }
+        }
+      }
+    }
+    `,
+    {
+      owner,
+      repo,
+      cursor,
+    },
+  );
+
+  results.push(...result.repository.labels.nodes);
+  if (result.repository.labels.pageInfo.hasNextPage) {
+    results = await _getLabels(
+      results,
+      result.repository.labels.pageInfo.endCursor,
+    );
+  }
+
+  return results;
 }
 
 export async function addLabelToIssue(label: string): Promise<void> {

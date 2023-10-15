@@ -5,13 +5,14 @@ import { handleIssueOpenedEvent } from '@/handler/issue-opened';
 import { handleDiscussionCreatedEvent } from './handler/discussion-created';
 
 const HANDLER_MAP = {
-  issues: handleIssueOpenedEvent,
-  discussion: handleDiscussionCreatedEvent,
+  'issues/opened': handleIssueOpenedEvent,
+  'discussion/created': handleDiscussionCreatedEvent,
 };
 
 async function run(): Promise<void> {
   try {
-    const event = context.eventName;
+    const { eventName, payload } = context;
+    const event = `${eventName}/${payload}`;
 
     if (event in HANDLER_MAP) {
       const handler = HANDLER_MAP[event as keyof typeof HANDLER_MAP];

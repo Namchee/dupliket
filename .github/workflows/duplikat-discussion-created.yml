@@ -5,7 +5,7 @@ on:
     types: [created]
 
 jobs:
-  summarize:
+  doopliket:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout to repository
@@ -15,6 +15,3 @@ jobs:
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.OPENAI_KEY }}
-          label: chore:possible-duplicate
-          discussions: true
-          max_issues: 3

@@ -1,4 +1,4 @@
-name: find-duplikat
+name: dooplikat
 description: Find possible references of duplicates from new issues and discussions
 author: Cristopher Namchee
 inputs:

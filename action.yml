@@ -1,5 +1,5 @@
-name: duplikate
-description: Triage issues and discussions efficiently by detecting duplicates and create a reference for them
+name: find-duplikat
+description: Find possible references of duplicates from new issues and discussions
 author: Cristopher Namchee
 inputs:
   access_token:

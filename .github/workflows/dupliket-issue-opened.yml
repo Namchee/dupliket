@@ -9,10 +9,8 @@ jobs:
     runs-on: ubuntu-latest
     if: ${{ !github.event.issue.pull_request }} # Do not listen to pull request events
     steps:
-      - name: Checkout to repository
-        uses: actions/checkout@v3
       - name: Triage issues
-        uses: ./
+        uses: Namchee/dupliket@v1.0.0
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.OPENAI_KEY }}

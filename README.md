@@ -1,6 +1,6 @@
 # Dupliket
 
-Dupliket is a GitHub action that helps repository maintainers to triage issues efficiently by detecting possible duplicate issues and discussions that has previously been created. It is powered by <abbr title="Large Language Model">LLM</abbr> provided by [OpenAI](https://openai.com/) to process issues and calculate their similarites.
+Dupliket is a GitHub action that helps repository maintainers to triage issues and discussions efficiently by finding duplicates and reference them directly in the newly created issue or discussion. It is powered by <abbr title="Large Language Model">LLM</abbr> provided by [OpenAI](https://openai.com/) to process issues and calculate their similarites.
 
 ## Installation
 

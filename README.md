@@ -1,10 +1,10 @@
-# Doopliket
+# Dupliket
 
-Doopliket is a GitHub action that helps repository maintainers to triage issues efficiently by detecting possible duplicate issues and discussions that has previously been created. It is powered by <abbr title="Large Language Model">LLM</abbr> provided by [OpenAI](https://openai.com/) to process issues and calculate their similarites.
+Dupliket is a GitHub action that helps repository maintainers to triage issues efficiently by detecting possible duplicate issues and discussions that has previously been created. It is powered by <abbr title="Large Language Model">LLM</abbr> provided by [OpenAI](https://openai.com/) to process issues and calculate their similarites.
 
 ## Installation
 
-You can integrate Doopliket in your GitHub workflow by creating a new [workflow file](https://docs.github.com/en/actions/using-workflows/about-workflows), for example:
+You can integrate Dupliket in your GitHub workflow by creating a new [workflow file](https://docs.github.com/en/actions/using-workflows/about-workflows), for example:
 
 ```yaml
 on:
@@ -12,11 +12,11 @@ on:
     types: [opened]
 
 jobs:
-  doopliket:
+  dupliket:
     runs-on: ubuntu-latest
     steps:
       - name: Find possible duplicates
-        uses: Namchee/doopliket@<version>
+        uses: Namchee/dupliket@<version>
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
           api_key: ${{ secrets.API_KEY }}
@@ -24,7 +24,7 @@ jobs:
 
 ## Supported Events
 
-Doopliket supports the following workflow events:
+Dupliket supports the following workflow events:
 
 | Event | Types | Description |
 | ----- | ------ | ----------- |
@@ -41,12 +41,12 @@ Please refer to the [workflow events reference][workflow] for more information a
 >    types: [opened]
 >
 > jobs:
->  doopliket:
+>  dupliket:
 >    runs-on: ubuntu-latest
 >    if: ${{ !github.event.issue.pull_request }} # Do not listen to pull request events
 >    steps:
 >      - name: Find possible duplicates
->        uses: Namchee/doopliket@<version>
+>        uses: Namchee/dupliket@<version>
 >        with:
 >          access_token: ${{ secrets.GITHUB_TOKEN }}
 >          api_key: ${{ secrets.API_KEY }}
@@ -54,7 +54,7 @@ Please refer to the [workflow events reference][workflow] for more information a
 
 ## Inputs
 
-Doopliket accepts the following input that can be filled in [`jobs.with`][job input] section:
+Dupliket accepts the following input that can be filled in [`jobs.with`][job input] section:
 
 | **Name** | **Required?** | **Default Value** | **Description** |
 | -------- | ------------- | ----------------- | --------------- |
@@ -70,7 +70,7 @@ Doopliket accepts the following input that can be filled in [`jobs.with`][job in
 
 ### Customizing Message
 
-By default, `doopliket` will create a message containing references existing issues and discussions when an issue or discussion is created and has potential duplicates. While this is good enough for normal use-cases, you might want to change the message to suit your needs or want to change the formatting instead.
+By default, `dupliket` will create a message containing references existing issues and discussions when an issue or discussion is created and has potential duplicates. While this is good enough for normal use-cases, you might want to change the message to suit your needs or want to change the formatting instead.
 
 You can customize the message by providing a [mustache template](https://github.com/janl/mustache.js) to `template` option in the workflow file. Markdown formatting is supported.
 
@@ -99,8 +99,8 @@ Hi @Namchee,
 
 Thanks for reporting an issue! However, it seems like there are 3 issue(s) that are similar to yours:
 
-- https://github.com/Namchee/doopliket/issues/49
-- https://github.com/Namchee/doopliket/issues/48
+- https://github.com/Namchee/dupliket/issues/49
+- https://github.com/Namchee/dupliket/issues/48
 ```
 
 ## License

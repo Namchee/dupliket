@@ -1,17 +1,16 @@
-name: Triage new issues for duplicates
+name: Triage new discussion for duplicates
 
 on:
-  issues:
-    types: [opened]
+  discussion:
+    types: [created]
 
 jobs:
-  doopliket:
+  dupliket:
     runs-on: ubuntu-latest
-    if: ${{ !github.event.issue.pull_request }} # Do not listen to pull request events
     steps:
       - name: Checkout to repository
         uses: actions/checkout@v3
-      - name: Triage issues
+      - name: Triage discussion
         uses: ./
         with:
           access_token: ${{ secrets.GITHUB_TOKEN }}
